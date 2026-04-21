@@ -104,7 +104,10 @@ function withLintFix(config) {
       if (!fs.existsSync(buildGradlePath)) return config;
       let content = fs.readFileSync(buildGradlePath, 'utf8');
       if (!content.includes('checkDependencies')) {
-        content = content + '\nlint { checkDependencies false }\n';
+        content = content.replace(
+          /^android \{/m,
+          'android {\n    lint { checkDependencies = false }'
+        );
         fs.writeFileSync(buildGradlePath, content);
       }
       return config;
