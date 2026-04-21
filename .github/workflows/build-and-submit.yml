@@ -60,6 +60,15 @@ jobs:
           sed -i '/android:statusBarColor/d' "$STYLES"
           sed -i '/android:navigationBarColor/d' "$STYLES"
 
+      - name: Fix gradle-wrapper.properties (pin Gradle to 9.0.0)
+        run: sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-9.0.0-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Fix gradle.properties (JVM memory for CI)
+        run: echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g" >> android/gradle.properties
+
+      - name: Fix app/build.gradle (disable lint on dependencies)
+        run: sed -i '/^android {/a\    lint { checkDependencies = false }' android/app/build.gradle
+
       - name: Configure Android SDK path
         run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
