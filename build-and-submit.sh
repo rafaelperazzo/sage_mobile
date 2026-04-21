@@ -94,6 +94,11 @@ cat > "$ANDROID/local.properties" <<EOF
 sdk.dir=/home/perazzo/Android/Sdk
 EOF
 
+echo "  Removendo atributos descontinuados de edge-to-edge..."
+STYLES="$ANDROID/app/src/main/res/values/styles.xml"
+sed -i '/android:statusBarColor/d' "$STYLES"
+sed -i '/android:navigationBarColor/d' "$STYLES"
+
 ok "Ambiente configurado"
 
 # ── 6. Build local ────────────────────────────────────────────────────────────

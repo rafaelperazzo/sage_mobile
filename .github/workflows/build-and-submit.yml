@@ -54,6 +54,12 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Fix styles.xml (remove deprecated edge-to-edge attributes)
+        run: |
+          STYLES="android/app/src/main/res/values/styles.xml"
+          sed -i '/android:statusBarColor/d' "$STYLES"
+          sed -i '/android:navigationBarColor/d' "$STYLES"
+
       - name: Configure Android SDK path
         run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
