@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/2/2a/UFRPE_logo.png/120px-UFRPE_logo.png" alt="UFRPE Logo" width="120">
+  <img src="https://upload.wikimedia.org/wikipedia/pt/2/2a/UFRPE_logo.png" alt="UFRPE Logo" width="120">
   
   # SAGE
   ### Sistema de Alocação e Gestão de Espaços
@@ -17,7 +17,7 @@
 
 ## 📱 O Projeto
 
-O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura acadêmica no Departamento de Computação da **UFRPE**. Integrando agendamento de aulas, reservas de auditório e tickets de manutenção em uma experiência mobile fluida e intuitiva.
+O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura acadêmica no Departamento de Computação da **UFRPE**. Integrando agendamento de aulas, reservas de auditório e tickets de manutenção em uma experiênca mobile fluida e intuitiva.
 
 <div align="center">
   <table>
@@ -32,7 +32,7 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
       <td align="center" width="50"></td>
       <td align="center">
         <b>Versão Web</b><br><br>
-        <img src="https://img.icons8.com/clouds/150/000000/browser.png" alt="Web Version Icon"><br>
+        <img src="https://cdn-icons-png.flaticon.com/512/841/841364.png" alt="Web Version Icon" width="120"><br>
         <a href="https://rafaelperazzo.github.io/sage">
           <img src="https://img.shields.io/badge/Acessar-WebApp-blue?logo=google-chrome&logoColor=white&style=for-the-badge" alt="Web App">
         </a>
