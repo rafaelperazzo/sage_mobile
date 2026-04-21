@@ -1,4 +1,4 @@
-<div align="center">
+
   # SAGE
   ### Sistema de Alocação e Gestão de Espaços
   
@@ -12,7 +12,7 @@
 
   [![Build & Submit](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml)
   [![EAS Update](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml)
-</div>
+
 
 ---
 
