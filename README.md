@@ -1,56 +1,108 @@
-# SAGE — Sistema de Alocação e Gestão de Espaços
+<div align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/2/2a/UFRPE_logo.png/120px-UFRPE_logo.png" alt="UFRPE Logo" width="120">
+  
+  # SAGE
+  ### Sistema de Alocação e Gestão de Espaços
+  
+  *Desenvolvido para o Departamento de Computação da UFRPE*
 
-O **SAGE** é um aplicativo móvel desenvolvido com **React Native** e **Expo** para gerenciar a alocação de salas, reservas de auditório e chamados de manutenção no Departamento de Computação da **UFRPE**.
+  [![React Native](https://img.shields.io/badge/React_Native-0.81.5-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
+  [![Expo](https://img.shields.io/badge/Expo-SDK_55-000020?logo=expo&logoColor=white)](https://expo.dev/)
+  [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+  [![Tailwind CSS](https://img.shields.io/badge/NativeWind-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://www.nativewind.dev/)
+  [![License](https://img.shields.io/badge/License-Private-lightgrey.svg)](#)
+</div>
 
-## 🚀 Principais Funcionalidades
+---
 
-- **Mapa de Alocação:** Visualização da grade de horários e ocupação das salas de aula.
-- **Agenda:** Consulta de horários por período letivo.
-- **Reservas de Auditório:** Sistema de agendamento e consulta de disponibilidade do auditório.
-- **Manutenção:** Abertura e acompanhamento de tickets de manutenção para infraestrutura.
-- **Atualizações OTA:** Suporte a atualizações Over-The-Air via Expo Updates.
+## 📱 O Projeto
 
-## 🛠️ Tecnologias Utilizadas
+O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura acadêmica no Departamento de Computação da **UFRPE**. Integrando agendamento de aulas, reservas de auditório e tickets de manutenção em uma experiência mobile fluida e intuitiva.
 
-- **Frontend:** [React Native](https://reactnative.dev/) com [Expo](https://expo.dev/)
-- **Roteamento:** [Expo Router](https://docs.expo.dev/router/introduction/)
-- **Estilização:** [NativeWind](https://www.nativewind.dev/) (Tailwind CSS)
-- **Backend/Database:** [Supabase](https://supabase.com/)
-- **Gráficos:** [Victory Native](https://formidable.com/open-source/victory-native/)
-- **Animações:** [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) e [Skia](https://shopify.github.io/react-native-skia/)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <b>Disponível na Play Store</b><br><br>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://play.google.com/store/apps/details?id=com.rafaelperazzo.appdc" alt="QR Code Play Store"><br>
+        <a href="https://play.google.com/store/apps/details?id=com.rafaelperazzo.appdc">
+          <img src="https://img.shields.io/badge/Google_Play-Instalar-green?logo=google-play&logoColor=white&style=for-the-badge" alt="Google Play Store">
+        </a>
+      </td>
+      <td align="center" width="50"></td>
+      <td align="center">
+        <b>Versão Web</b><br><br>
+        <img src="https://img.icons8.com/clouds/150/000000/browser.png" alt="Web Version Icon"><br>
+        <a href="https://rafaelperazzo.github.io/sage">
+          <img src="https://img.shields.io/badge/Acessar-WebApp-blue?logo=google-chrome&logoColor=white&style=for-the-badge" alt="Web App">
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
 
-## 📦 Instalação e Execução
+---
 
-1. **Clone o repositório:**
+## ✨ Funcionalidades
+
+- 🗺️ **Mapa Dinâmico:** Visualização em tempo real da ocupação das salas de aula.
+- 📅 **Agenda Acadêmica:** Filtros inteligentes por semestre e dia da semana.
+- 🎭 **Reservas de Auditório:** Sistema completo de agendamento com detecção de conflitos.
+- 🛠️ **Gestão de Manutenção:** Abertura de tickets com status em tempo real.
+- 🔄 **Atualizações Instantâneas:** Receba melhorias sem precisar atualizar pela loja (OTA).
+
+---
+
+## 🛠️ Stack Tecnológica
+
+| Camada | Tecnologia |
+| :--- | :--- |
+| **Mobile Core** | React Native + Expo |
+| **Navigation** | Expo Router (File-based) |
+| **Styling** | NativeWind (Tailwind CSS) |
+| **Database/Auth** | Supabase (PostgreSQL) |
+| **Charts/UI** | Victory Native & Skia |
+
+---
+
+## 🚀 Como Iniciar (Desenvolvimento)
+
+### Pré-requisitos
+- Node.js (v20+)
+- NPM ou Yarn
+- Expo Go instalado no dispositivo
+
+### Passo a Passo
+
+1. **Clone e Instale:**
    ```bash
    git clone https://github.com/rafaelperazzo/sage_mobile.git
    cd sage_mobile
-   ```
-
-2. **Instale as dependências:**
-   ```bash
    npm install --legacy-peer-deps
    ```
 
-3. **Configure as variáveis de ambiente:**
-   Crie um arquivo `.env` na raiz do projeto com as credenciais do Supabase:
+2. **Ambiente:**
+   Crie um `.env` com as chaves do projeto (consulte o administrador):
    ```env
-   EXPO_PUBLIC_SUPABASE_URL=sua_url_aqui
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=sua_chave_aqui
+   EXPO_PUBLIC_SUPABASE_URL=...
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=...
    ```
 
-4. **Inicie o servidor de desenvolvimento:**
+3. **Execução:**
    ```bash
    npx expo start
    ```
 
-## 🏗️ Build e Deploy
+---
 
-O projeto utiliza scripts customizados para facilitar o processo de build e submissão:
+## 🛠️ Automação e Deploy
 
-- `./prebuild.sh`: Limpa e gera os arquivos nativos com correções específicas.
-- `./update.sh "mensagem"`: Publica uma atualização OTA.
-- `./build-submit.sh`: Realiza o build via EAS Cloud e submete à Play Store.
+O projeto conta com scripts de automação robustos:
+- `./prebuild.sh`: Prepara o ambiente nativo.
+- `./update.sh`: Dispara atualizações OTA.
+- `./build-submit.sh`: Build completo e submissão automática para as lojas.
 
 ---
-Desenvolvido por [Rafael Perazzo](https://github.com/rafaelperazzo).
+<div align="center">
+  <sub>Criado com ❤️ por <a href="https://github.com/rafaelperazzo">Rafael Perazzo</a></sub>
+</div>
