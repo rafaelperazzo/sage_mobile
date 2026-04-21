@@ -95,7 +95,8 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
 
 3. **Execução:**
    ```bash
-   npx expo start
+   npx expo start 
+   # ou npx expo run:android para rodar direto no emulador
    ```
 
 ---
