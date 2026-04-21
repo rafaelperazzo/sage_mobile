@@ -74,7 +74,28 @@ function withReactNativeHostFix(config) {
   ]);
 }
 
-// Fix 4: disable lint checkDependencies to avoid failures on third-party modules (e.g. async-storage)
+// Fix 4: pin Gradle wrapper to 9.0.0 for consistent builds across environments
+function withGradleVersionFix(config) {
+  return withDangerousMod(config, [
+    'android',
+    (config) => {
+      const wrapperPath = path.join(
+        config.modRequest.platformProjectRoot,
+        'gradle/wrapper/gradle-wrapper.properties'
+      );
+      if (!fs.existsSync(wrapperPath)) return config;
+      let content = fs.readFileSync(wrapperPath, 'utf8');
+      content = content.replace(
+        /distributionUrl=.*/,
+        'distributionUrl=https\\://services.gradle.org/distributions/gradle-9.0.0-bin.zip'
+      );
+      fs.writeFileSync(wrapperPath, content);
+      return config;
+    },
+  ]);
+}
+
+// Fix 5: disable lint checkDependencies to avoid failures on third-party modules (e.g. async-storage)
 function withLintFix(config) {
   return withDangerousMod(config, [
     'android',
@@ -98,6 +119,7 @@ module.exports = function withAndroidFixes(config) {
   config = withHermesCommandFix(config);
   config = withStylesFix(config);
   config = withReactNativeHostFix(config);
+  config = withGradleVersionFix(config);
   config = withLintFix(config);
   return config;
 };
