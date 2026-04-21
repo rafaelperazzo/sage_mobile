@@ -1,7 +1,9 @@
+<div align="center">
 
   # SAGE
-  ### Sistema de Alocação e Gestão de Espaços
   
+  ### Sistema de Alocação e Gestão de Espaços
+
   *Desenvolvido para o Departamento de Computação da UFRPE*
 
   [![React Native](https://img.shields.io/badge/React_Native-0.81.5-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
@@ -12,6 +14,8 @@
 
   [![Build & Submit](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml)
   [![EAS Update](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml)
+
+</div>
 
 
 ---
