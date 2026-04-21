@@ -1,0 +1,76 @@
+name: Build & Submit Android
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-submit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Set version from tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          node -e "
+            const fs = require('fs');
+            const app = require('./app.json');
+            app.expo.version = process.env.VERSION;
+            app.expo.runtimeVersion = process.env.VERSION;
+            fs.writeFileSync('./app.json', JSON.stringify(app, null, 2) + '\n');
+          "
+          echo "Version set to $VERSION"
+        env:
+          VERSION: ${{ github.ref_name }}
+
+      - name: Setup EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Expo Prebuild
+        run: npx expo prebuild --clean
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Configure Android SDK path
+        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
+      - name: Write Google service account key
+        run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > brseclabapp-e9bccb91d544.json
+
+      - name: Build (local)
+        run: eas build --platform android --profile production --local --non-interactive
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Submit to Play Store
+        run: |
+          AAB=$(ls -t build-*.aab | head -1)
+          eas submit --platform android --profile production --path "$AAB" --non-interactive
+
+      - name: Cleanup service account key
+        if: always()
+        run: rm -f brseclabapp-e9bccb91d544.json
