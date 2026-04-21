@@ -1,4 +1,4 @@
-const { withDangerousMod, withGradleProperties } = require('@expo/config-plugins');
+const { withDangerousMod } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -74,9 +74,30 @@ function withReactNativeHostFix(config) {
   ]);
 }
 
+// Fix 4: disable lint checkDependencies to avoid failures on third-party modules (e.g. async-storage)
+function withLintFix(config) {
+  return withDangerousMod(config, [
+    'android',
+    (config) => {
+      const buildGradlePath = path.join(config.modRequest.platformProjectRoot, 'app/build.gradle');
+      if (!fs.existsSync(buildGradlePath)) return config;
+      let content = fs.readFileSync(buildGradlePath, 'utf8');
+      if (!content.includes('checkDependencies')) {
+        content = content.replace(
+          /^android \{/m,
+          'android {\n    lint { checkDependencies false }'
+        );
+        fs.writeFileSync(buildGradlePath, content);
+      }
+      return config;
+    },
+  ]);
+}
+
 module.exports = function withAndroidFixes(config) {
   config = withHermesCommandFix(config);
   config = withStylesFix(config);
   config = withReactNativeHostFix(config);
+  config = withLintFix(config);
   return config;
 };
