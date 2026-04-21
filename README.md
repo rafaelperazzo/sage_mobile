@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Brasao_da_UFRPE.png" alt="UFRPE Logo" width="120">
-  
   # SAGE
   ### Sistema de Alocação e Gestão de Espaços
   
