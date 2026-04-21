@@ -26,7 +26,7 @@ START_TIME=$(date +%s)
 # ── 1. Alterações não commitadas ──────────────────────────────────────────────
 step "Verificando status do repositório..."
 
-cd "$REPO_DIR"
+cd "$MOBILE_DIR"
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
   fail "Há alterações não commitadas. Faça commit antes de continuar."
@@ -36,6 +36,7 @@ ok "Sem alterações pendentes"
 # ── 2. Sincronização com o remoto ─────────────────────────────────────────────
 step "Sincronizando com o remoto..."
 
+cd "$MOBILE_DIR"
 git fetch origin 2>/dev/null
 
 UPSTREAM=$(git rev-parse "@{u}" 2>/dev/null || echo "")
