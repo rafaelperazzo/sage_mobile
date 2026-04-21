@@ -95,7 +95,7 @@ function withGradleVersionFix(config) {
   ]);
 }
 
-// Fix 5: disable lint checkDependencies to avoid failures on third-party modules (e.g. async-storage)
+// Fix 5: disable lint checkDependencies to avoid failures on third-party modules (e.g. async-storage, safe-area-context)
 function withLintFix(config) {
   return withDangerousMod(config, [
     'android',
@@ -104,10 +104,7 @@ function withLintFix(config) {
       if (!fs.existsSync(buildGradlePath)) return config;
       let content = fs.readFileSync(buildGradlePath, 'utf8');
       if (!content.includes('checkDependencies')) {
-        content = content.replace(
-          /^android \{/m,
-          'android {\n    lint { checkDependencies false }'
-        );
+        content = content + '\nlint { checkDependencies false }\n';
         fs.writeFileSync(buildGradlePath, content);
       }
       return config;
