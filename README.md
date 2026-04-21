@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/pt/2/2a/UFRPE_logo.png" alt="UFRPE Logo" width="120">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Brasao_da_UFRPE.png" alt="UFRPE Logo" width="120">
   
   # SAGE
   ### Sistema de Alocação e Gestão de Espaços
@@ -11,13 +11,16 @@
   [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
   [![Tailwind CSS](https://img.shields.io/badge/NativeWind-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://www.nativewind.dev/)
   [![License](https://img.shields.io/badge/License-Private-lightgrey.svg)](#)
+
+  [![Build & Submit](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml)
+  [![EAS Update](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml)
 </div>
 
 ---
 
 ## 📱 O Projeto
 
-O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura acadêmica no Departamento de Computação da **UFRPE**. Integrando agendamento de aulas, reservas de auditório e tickets de manutenção em uma experiênca mobile fluida e intuitiva.
+O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura acadêmica no Departamento de Computação da **UFRPE**. Integrando agendamento de aulas, reservas de auditório e tickets de manutenção em uma experiência mobile fluida e intuitiva.
 
 <div align="center">
   <table>
@@ -95,12 +98,16 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
 
 ---
 
-## 🛠️ Automação e Deploy
+## 🚀 CI/CD
 
-O projeto conta com scripts de automação robustos:
-- `./prebuild.sh`: Prepara o ambiente nativo.
-- `./update.sh`: Dispara atualizações OTA.
-- `./build-submit.sh`: Build completo e submissão automática para as lojas.
+O deploy é totalmente automatizado via GitHub Actions:
+
+| Ação | Como disparar |
+| :--- | :--- |
+| **Build nativo + Play Store** | Criar tag `v*` (ex: `git tag v24.0.0 && git push origin v24.0.0`) |
+| **OTA Update (sem novo build)** | Criar tag `u*` (ex: `git tag u24.1.0 && git push origin u24.1.0`) |
+
+Use `./commit.sh` para guiar o processo interativamente.
 
 ---
 <div align="center">
