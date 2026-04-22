@@ -87,22 +87,7 @@ cd "$MOBILE_DIR"
 npx expo prebuild --clean
 ok "Prebuild concluído"
 
-# ── 5. Pós-prebuild ───────────────────────────────────────────────────────────
-step "Configurando ambiente local..."
-
-echo "  Criando local.properties..."
-cat > "$ANDROID/local.properties" <<EOF
-sdk.dir=/home/perazzo/Android/Sdk
-EOF
-
-echo "  Removendo atributos descontinuados de edge-to-edge..."
-STYLES="$ANDROID/app/src/main/res/values/styles.xml"
-sed -i '/android:statusBarColor/d' "$STYLES"
-sed -i '/android:navigationBarColor/d' "$STYLES"
-
-ok "Ambiente configurado"
-
-# ── 6. Build local ────────────────────────────────────────────────────────────
+# ── 5. Build local ────────────────────────────────────────────────────────────
 step "Gerando build de produção localmente..."
 
 if ! eas build --platform android --profile production --local; then
@@ -117,7 +102,7 @@ fi
 
 ok "Build concluído: $(basename "$AAB_FILE")"
 
-# ── 7. Submit à Play Store ────────────────────────────────────────────────────
+# ── 6. Submit à Play Store ────────────────────────────────────────────────────
 step "Submetendo à Play Store..."
 
 eas submit --platform android --profile production --path "$AAB_FILE"

@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Java
@@ -54,23 +54,23 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Fix styles.xml (remove deprecated edge-to-edge attributes)
-        run: |
-          STYLES="android/app/src/main/res/values/styles.xml"
-          sed -i '/android:statusBarColor/d' "$STYLES"
-          sed -i '/android:navigationBarColor/d' "$STYLES"
+      #- name: Fix styles.xml (remove deprecated edge-to-edge attributes)
+      #  run: |
+      #    STYLES="android/app/src/main/res/values/styles.xml"
+      #    sed -i '/android:statusBarColor/d' "$STYLES"
+      #    sed -i '/android:navigationBarColor/d' "$STYLES"
 
-      - name: Fix gradle-wrapper.properties (pin Gradle to 9.0.0)
-        run: sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-9.0.0-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties
+      #- name: Fix gradle-wrapper.properties (pin Gradle to 9.0.0)
+      #  run: sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-9.0.0-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties
 
-      - name: Fix gradle.properties (JVM memory for CI)
-        run: echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g" >> android/gradle.properties
+      #- name: Fix gradle.properties (JVM memory for CI)
+      #  run: echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g" >> android/gradle.properties
 
-      - name: Fix app/build.gradle (lint options)
-        run: sed -i '/^android {/a\    lint { checkDependencies = false; checkReleaseBuilds = false; abortOnError = false }' android/app/build.gradle
+      #- name: Fix app/build.gradle (lint options)
+      #  run: sed -i '/^android {/a\    lint { checkDependencies = false; checkReleaseBuilds = false; abortOnError = false }' android/app/build.gradle
 
-      - name: Configure Android SDK path
-        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+      #- name: Configure Android SDK path
+      #  run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
       - name: Write Google service account key
         run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > brseclabapp-e9bccb91d544.json
