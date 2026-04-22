@@ -25,6 +25,16 @@
         "backgroundColor": "#ffffff"
       },
       "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "pan",
+      "navigationBar": {
+        "barStyle": "dark-content",
+        "backgroundColor": "#00000000" 
+      },
+      "statusBar": {
+        "barStyle": "dark-content",
+        "backgroundColor": "#00000000",
+        "translucent": true
+      },
       "package": "com.rafaelperazzo.appdc"
     },
     "web": {
