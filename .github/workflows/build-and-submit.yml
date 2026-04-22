@@ -64,21 +64,25 @@ jobs:
       #  run: sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-9.0.0-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Fix gradle.properties (JVM memory for CI)
-        run: sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g/' android/gradle.properties
+        run: |
+          sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=2g/' android/gradle.properties
+          echo "org.gradle.daemon=false" >> android/gradle.properties
 
       - name: Fix app/build.gradle (lint options)
         run: sed -i '/^android {/a\    lint { checkDependencies = false; checkReleaseBuilds = false; abortOnError = false }' android/app/build.gradle
 
-      - name: Fix android/build.gradle (disable lint on all subprojects)
+      - name: Create Gradle init script (disable lint on all modules)
         run: |
-          cat >> android/build.gradle <<'EOF'
-
-          subprojects {
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/init.gradle <<'EOF'
+          allprojects {
             plugins.withId('com.android.library') {
-              android {
-                lint {
-                  abortOnError = false
-                  checkReleaseBuilds = false
+              afterEvaluate {
+                android {
+                  lint {
+                    abortOnError = false
+                    checkReleaseBuilds = false
+                  }
                 }
               }
             }
