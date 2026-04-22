@@ -71,23 +71,6 @@ jobs:
       - name: Fix app/build.gradle (lint options)
         run: sed -i '/^android {/a\    lint { checkDependencies = false; checkReleaseBuilds = false; abortOnError = false }' android/app/build.gradle
 
-      - name: Create Gradle init script (disable lint on all modules)
-        run: |
-          mkdir -p ~/.gradle
-          cat > ~/.gradle/init.gradle <<'EOF'
-          allprojects {
-            plugins.withId('com.android.library') {
-              afterEvaluate {
-                android {
-                  lint {
-                    abortOnError = false
-                    checkReleaseBuilds = false
-                  }
-                }
-              }
-            }
-          }
-          EOF
 
       #- name: Configure Android SDK path
       #  run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
