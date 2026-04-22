@@ -70,7 +70,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 20 }}>
         <View style={{ alignItems: 'center', paddingVertical: 24, paddingHorizontal: 16, marginBottom: 8, width: cardWidth }}>
           <Text style={{ fontSize: 36, fontWeight: '900', color: '#111827', letterSpacing: -1 }}>
-            SAGE
+            *SAGE*
           </Text>
           <Text style={{ fontSize: 15, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>
             Sistema de Alocação e Gestão de Espaços
