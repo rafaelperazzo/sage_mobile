@@ -59,7 +59,7 @@ jobs:
             "android": {
               "extraGradleArguments": ["-Pandroid.lint.abortOnError=false", "-Pandroid.lint.checkReleaseBuilds=false"],
               "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
-              "compileSdkVersion": 35,
+              "compileSdkVersion": 36,
               "targetSdkVersion": 35,
               "enableEdgeToEdge": true
             }
