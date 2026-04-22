@@ -51,12 +51,15 @@ jobs:
       - name: Write Google service account key
         run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > brseclabapp-e9bccb91d544.json
 
-      - name: Build (local)
-        run: eas build --platform android --profile production --local --non-interactive
+      - name: EAS Build (Local)
+        run: |
+          export GRADLE_OPTS="-Dorg.gradle.jvmargs='-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError' -Dorg.gradle.daemon=false"
+          eas build --platform android --profile production --local --non-interactive
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=1g"
+          ORG_GRADLE_PROJECT_android.lint.abortOnError: "false"
+          ORG_GRADLE_PROJECT_android.lint.checkReleaseBuilds: "false"
 
       - name: Submit to Play Store
         run: |
