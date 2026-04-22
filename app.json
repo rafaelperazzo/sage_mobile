@@ -32,9 +32,24 @@
     },
     "scheme": "sage",
     "plugins": [
-      "expo-router",
-      "expo-secure-store",
-      "@react-native-community/datetimepicker"
+          "expo-router",
+          "expo-secure-store",
+          "@react-native-community/datetimepicker",
+          [
+            "expo-build-properties",
+            {
+              "android": {
+                  "extraGradleArguments": [
+                    "-Pandroid.lint.abortOnError=false",
+                    "-Pandroid.lint.checkReleaseBuilds=false"
+                  ],
+                  "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
+                  "compileSdkVersion": 36,
+                  "targetSdkVersion": 35,
+                  "enableEdgeToEdge": true
+              }
+          }
+      ]
     ],
     "extra": {
       "router": {},

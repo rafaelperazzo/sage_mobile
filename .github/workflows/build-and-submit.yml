@@ -51,22 +51,6 @@ jobs:
       - name: Write Google service account key
         run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > brseclabapp-e9bccb91d544.json
 
-      - name: Injetar Configurações (Lint + Edge-to-Edge + Memory)
-        run: |
-          npm install expo-build-properties
-          sudo apt-get install -y jq
-          jq '.expo.plugins += [["expo-build-properties", {
-            "android": {
-              "extraGradleArguments": ["-Pandroid.lint.abortOnError=false", "-Pandroid.lint.checkReleaseBuilds=false"],
-              "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
-              "compileSdkVersion": 36,
-              "targetSdkVersion": 35,
-              "enableEdgeToEdge": true
-            }
-          }]]' app.json > temp.json && mv temp.json app.json
-          
-          echo "Configurações de JVM e Lint aplicadas dinamicamente"
-      
       - name: Build (local)
         run: eas build --platform android --profile production --local --non-interactive
         env:
