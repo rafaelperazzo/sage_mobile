@@ -74,13 +74,11 @@ jobs:
           cat >> android/build.gradle <<'EOF'
 
           subprojects {
-            afterEvaluate { project ->
-              if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
-                android {
-                  lint {
-                    abortOnError false
-                    checkReleaseBuilds false
-                  }
+            plugins.withId('com.android.library') {
+              android {
+                lint {
+                  abortOnError = false
+                  checkReleaseBuilds = false
                 }
               }
             }
@@ -98,6 +96,7 @@ jobs:
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=1g"
 
       - name: Submit to Play Store
         run: |
