@@ -26,6 +26,7 @@ interface UseReservasReturn {
   reservas: Reserva[]
   loading: boolean
   error: string | null
+  reload: () => Promise<void>
   create: (data: ReservaInput) => Promise<void>
   update: (id: number, data: ReservaInput) => Promise<void>
   remove: (id: number) => Promise<void>
@@ -78,5 +79,5 @@ export function useReservas(ano: number, mes: number): UseReservasReturn {
     await load()
   }
 
-  return { reservas, loading, error, create, update, remove, hasConflict }
+  return { reservas, loading, error, reload: load, create, update, remove, hasConflict }
 }

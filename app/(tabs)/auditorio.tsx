@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Linking, Modal } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useReservas } from '../../src/hooks/useReservas'
 import { useAuthContext } from '../../src/contexts/AuthContext'
@@ -37,8 +37,10 @@ export default function AuditorioScreen() {
   const [mes, setMes] = useState(today.getMonth() + 1)
   const [tab, setTab] = useState<'calendario' | 'relatorio'>('calendario')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const { reservas, loading } = useReservas(ano, mes)
+  const { reservas, loading, reload } = useReservas(ano, mes)
   const { isAdmin } = useAuthContext()
+
+  useFocusEffect(useCallback(() => { void reload() }, [reload]))
   const { width } = useWindowDimensions()
 
   const weeks = buildCalendarWeeks(ano, mes)

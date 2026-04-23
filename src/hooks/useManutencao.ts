@@ -11,6 +11,7 @@ interface UseManutencaoReturn {
   manutencoes: Manutencao[]
   loading: boolean
   error: string | null
+  reload: () => Promise<void>
   create: (data: ManutencaoInput) => Promise<void>
   update: (id: number, data: ManutencaoInput) => Promise<void>
   remove: (id: number) => Promise<void>
@@ -54,5 +55,5 @@ export function useManutencao(): UseManutencaoReturn {
     await load()
   }
 
-  return { manutencoes, loading, error, create, update, remove }
+  return { manutencoes, loading, error, reload: load, create, update, remove }
 }

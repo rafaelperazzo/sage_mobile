@@ -2,8 +2,8 @@
   "expo": {
     "name": "SAGE",
     "slug": "sage",
-    "version": "24.0.15",
-    "runtimeVersion": "24.0.15",
+    "version": "24.0.16",
+    "runtimeVersion": "24.0.16",
     "updates": {
       "url": "https://u.expo.dev/bb4a9eba-9c40-49d1-a03a-fada08228e32"
     },
@@ -28,7 +28,7 @@
       "softwareKeyboardLayoutMode": "pan",
       "navigationBar": {
         "barStyle": "dark-content",
-        "backgroundColor": "#00000000" 
+        "backgroundColor": "#00000000"
       },
       "statusBar": {
         "barStyle": "dark-content",
@@ -42,23 +42,23 @@
     },
     "scheme": "sage",
     "plugins": [
-          "expo-router",
-          "expo-secure-store",
-          "@react-native-community/datetimepicker",
-          [
-            "expo-build-properties",
-            {
-              "android": {
-                  "extraGradleArguments": [
-                    "-Pandroid.lint.abortOnError=false",
-                    "-Pandroid.lint.checkReleaseBuilds=false"
-                  ],
-                  "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
-                  "compileSdkVersion": 36,
-                  "targetSdkVersion": 35,
-                  "enableEdgeToEdge": true
-              }
+      "expo-router",
+      "expo-secure-store",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraGradleArguments": [
+              "-Pandroid.lint.abortOnError=false",
+              "-Pandroid.lint.checkReleaseBuilds=false"
+            ],
+            "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 35,
+            "enableEdgeToEdge": true
           }
+        }
       ]
     ],
     "extra": {

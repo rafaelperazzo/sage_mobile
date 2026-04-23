@@ -3,7 +3,7 @@ name: Build & Submit Android
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.0'
 
 jobs:
   build-and-submit:

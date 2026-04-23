@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useManutencao } from '../../src/hooks/useManutencao'
 import { useAuthContext } from '../../src/contexts/AuthContext'
@@ -59,8 +59,10 @@ function ManutencaoCard({ item, isAdmin, onPress }: { item: Manutencao; isAdmin:
 }
 
 export default function ManutencaoScreen() {
-  const { manutencoes, loading, error } = useManutencao()
+  const { manutencoes, loading, error, reload } = useManutencao()
   const { isAdmin } = useAuthContext()
+
+  useFocusEffect(useCallback(() => { void reload() }, [reload]))
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 

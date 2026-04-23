@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { SALAS } from '../../src/constants/salas'
 import { useAlocacoesPorSala } from '../../src/hooks/useAlocacoes'
@@ -26,7 +26,9 @@ export default function MapScreen() {
   const [selectedSala, setSelectedSala] = useState(SALAS[0]!.nome)
   const { isAdmin } = useAuthContext()
   const { periodo, setPeriodo, periodos } = usePeriodo()
-  const { alocacoes, loading, error } = useAlocacoesPorSala(selectedSala)
+  const { alocacoes, loading, error, reload } = useAlocacoesPorSala(selectedSala)
+
+  useFocusEffect(useCallback(() => { void reload() }, [reload]))
 
   function handleCellPress(alocacao: Alocacao) {
     const path = isAdmin ? '/map/[id]/edit' : '/map/[id]/view'

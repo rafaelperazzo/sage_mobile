@@ -3,7 +3,7 @@ name: EAS Update (OTA)
 on:
   push:
     tags:
-      - 'u*'
+      - 'v*.*.[1-9]*'
 
 jobs:
   update:

@@ -83,6 +83,11 @@ while true; do
         patch) PATCH=$((PATCH + 1)) ;;
       esac
 
+      # .0 é reservado para major/minor (dispara o build workflow); patch inicia em .1
+      if [[ "$BUMP" == "patch" && "$PATCH" -eq 0 ]]; then
+        PATCH=1
+      fi
+
       NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
       STEP=4
       ;;
@@ -95,8 +100,21 @@ while true; do
       STEP=5
       ;;
 
-    # --- Passo 5: Execução com barra de progresso ---
+    # --- Passo 5: Atualizar app.json ---
     5)
+      VERSION="${MAJOR}.${MINOR}.${PATCH}"
+      node -e "
+        const fs = require('fs');
+        const app = require('./app.json');
+        app.expo.version = '$VERSION';
+        app.expo.runtimeVersion = '$VERSION';
+        fs.writeFileSync('./app.json', JSON.stringify(app, null, 2) + '\n');
+      " || { whiptail --title "Erro" --msgbox "Falha ao atualizar app.json." 8 50; exit 1; }
+      STEP=6
+      ;;
+
+    # --- Passo 6: Execução com barra de progresso ---
+    6)
       ERR_FILE=$(mktemp)
 
       (
@@ -124,8 +142,8 @@ while true; do
 
       rm -f "$ERR_FILE"
       whiptail --title "$TITLE" \
-        --msgbox "Operações concluídas com sucesso!\n\n  ✔ git add .\n  ✔ git commit\n  ✔ git tag $NEW_TAG\n  ✔ git push origin master --tags" \
-        14 65 \
+        --msgbox "Operações concluídas com sucesso!\n\n  ✔ app.json atualizado ($VERSION)\n  ✔ git add .\n  ✔ git commit\n  ✔ git tag $NEW_TAG\n  ✔ git push origin master --tags" \
+        15 65 \
         --ok-button "Sair"
       clear
       echo -e "\033[0;32m✔ Deploy concluído — tag $NEW_TAG publicada.\033[0m"

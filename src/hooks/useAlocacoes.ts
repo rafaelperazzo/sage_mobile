@@ -58,6 +58,7 @@ interface UseAlocacoesPorSalaReturn {
   alocacoes: Alocacao[]
   loading: boolean
   error: string | null
+  reload: () => Promise<void>
   create: (data: AlocacaoInput) => Promise<void>
   update: (id: number, data: AlocacaoInput) => Promise<void>
   remove: (id: number) => Promise<void>
@@ -111,5 +112,5 @@ export function useAlocacoesPorSala(sala: string): UseAlocacoesPorSalaReturn {
     await load()
   }
 
-  return { alocacoes, loading, error, create, update, remove, hasConflict }
+  return { alocacoes, loading, error, reload: load, create, update, remove, hasConflict }
 }
