@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, useWindowDimensions, Linking } from 'react-native'
+import { View, Text, ScrollView, Pressable, useWindowDimensions, Linking, BackHandler } from 'react-native'
 import { router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -133,6 +133,13 @@ export default function HomeScreen() {
           <Text style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4, textAlign: 'center' }}>v{Constants.expoConfig?.version ?? Constants.nativeAppVersion}</Text>
         </Pressable>
       </ScrollView>
+
+      <Pressable
+        onPress={() => BackHandler.exitApp()}
+        style={{ position: 'absolute', bottom: 24, right: 20, width: 44, height: 44, borderRadius: 22, backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#E5E7EB', alignItems: 'center', justifyContent: 'center', elevation: 2 }}
+      >
+        <Ionicons name="power-outline" size={20} color="#6B7280" />
+      </Pressable>
     </SafeAreaView>
   )
 }

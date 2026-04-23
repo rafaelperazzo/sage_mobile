@@ -101,16 +101,41 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
 
 ---
 
-## 🚀 CI/CD
+## 🚀 CI/CD e Deploy
 
-O deploy é totalmente automatizado via GitHub Actions:
+### `./commit.sh` — Envio de alterações (sem modificação de versão)
 
-| Ação | Como disparar |
-| :--- | :--- |
-| **Build nativo + Play Store** | Criar tag `v*` (ex: `git tag v24.0.0 && git push origin v24.0.0`) |
-| **OTA Update (sem novo build)** | Criar tag `u*` (ex: `git tag u24.1.0 && git push origin u24.1.0`) |
+Use quando quiser apenas commitar e enviar código para o repositório, sem gerar nenhuma tag ou disparar pipelines de deploy.
 
-Use `./commit.sh` para guiar o processo interativamente.
+```
+commit.sh
+  1. Tipo de commit (feat, fix, docs, style, refactor, test, chore, perf)
+  2. Mensagem do commit
+  3. Confirmação
+  4. git add . → git commit → git push origin master
+```
+
+### `./deploy.sh` — Deploy interativo com versionamento semântico
+
+Use quando quiser publicar uma nova versão do app. O script guia o processo completo, cria a tag e dispara automaticamente o workflow correto no GitHub Actions.
+
+```
+deploy.sh
+  1. Tipo de commit
+  2. Mensagem do commit
+  3. Tipo de versão (major / minor / patch)
+  4. Confirmação
+  5. Atualiza app.json (apenas em major/minor)
+  6. git add . → git commit → git tag → git push
+```
+
+| Bump | Tag gerada | `app.json` atualizado | Workflow disparado |
+| :--- | :--- | :--- | :--- |
+| `major` | `vX.0.0` | ✅ | Build nativo + Play Store |
+| `minor` | `vX.Y.0` | ✅ | Build nativo + Play Store |
+| `patch` | `vX.Y.Z` (Z ≥ 1) | ❌ | OTA Update (EAS Update) |
+
+> **Regra:** tags terminadas em `.0` disparam o build nativo. Tags com patch ≥ 1 disparam apenas o OTA update.
 
 ---
 <div align="center">
