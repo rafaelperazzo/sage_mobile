@@ -14,6 +14,7 @@
 
   [![Build & Submit](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/build-and-submit.yml)
   [![EAS Update](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/eas-update.yml)
+  [![E2E Tests](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/e2e-tests.yml/badge.svg)](https://github.com/rafaelperazzo/sage_mobile/actions/workflows/e2e-tests.yml)
 
 </div>
 
@@ -136,6 +137,44 @@ deploy.sh
 | `patch` | `vX.Y.Z` (Z ≥ 1) | ❌ | OTA Update (EAS Update) |
 
 > **Regra:** tags terminadas em `.0` disparam o build nativo. Tags com patch ≥ 1 disparam apenas o OTA update.
+
+---
+
+## 🧪 Testes E2E (Maestro)
+
+Os testes de ponta a ponta cobrem todas as telas em **modo público** (sem autenticação), verificando renderização sem erros e navegação completa pelo app.
+
+### Executar localmente
+
+```bash
+# Instalar o Maestro CLI (uma vez)
+curl -Ls "https://get.maestro.mobile.dev" | bash
+
+# Com o app instalado no emulador ou device:
+maestro test .maestro/flows/
+
+# Flow individual:
+maestro test .maestro/flows/05_auditorio_tab.yaml
+```
+
+### Flows disponíveis
+
+| Flow | Cobertura |
+| :--- | :--- |
+| `00_app_launch` | App abre sem crash |
+| `01_home_tab` | Tela Início — todos os elementos |
+| `02_map_tab` | Aba SAGE Map |
+| `03_agenda_tab` | Aba SAGE Agenda |
+| `04_report_tab` | Aba SAGE Report |
+| `05_auditorio_tab` | Aba SAGE Auditório |
+| `06_manutencao_tab` | Aba SAGE Manutenção |
+| `07_navigation_tabs` | Ciclo completo pelas 6 abas |
+| `08_login_modal` | Abre e fecha o modal de login |
+| `09_sobre_screen` | Abre e fecha a tela Sobre |
+
+### CI
+
+O workflow [`e2e-tests.yml`](.github/workflows/e2e-tests.yml) executa os testes automaticamente **toda segunda a sexta às 06:00 UTC** e pode ser acionado manualmente via GitHub Actions.
 
 ---
 <div align="center">
