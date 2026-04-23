@@ -122,10 +122,7 @@ jobs:
             sleep 5
 
             # Executa todos os flows em sequência e gera relatório JUnit
-            maestro test \
-              --format junit \
-              --output maestro-results.xml \
-              .maestro/flows/
+            maestro test --format junit --output maestro-results.xml .maestro/flows/
 
       - name: Upload test report (JUnit)
         if: always()
