@@ -5,7 +5,7 @@ name: "05 - Auditório Tab"
 - waitForAnimationToEnd:
     timeout: 8000
 - tapOn:
-    text: "Audit.*"
+    id: "tab-auditorio"
 - waitForAnimationToEnd:
     timeout: 10000
 - assertVisible:

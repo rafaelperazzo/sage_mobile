@@ -70,6 +70,7 @@ export default function TabsLayout() {
         options={{
           title: 'Início',
           tabBarLabel: 'Início',
+          tabBarTestID: 'tab-inicio',
           tabBarIcon: tabIcon('home-outline'),
           headerRight: () => <LoginButton />,
         }}
@@ -79,6 +80,7 @@ export default function TabsLayout() {
         options={{
           title: 'SAGE Map',
           tabBarLabel: 'Map',
+          tabBarTestID: 'tab-map',
           tabBarIcon: tabIcon('map-outline'),
           headerRight: () => (
             <>
@@ -97,6 +99,7 @@ export default function TabsLayout() {
         options={{
           title: 'SAGE Agenda',
           tabBarLabel: 'Agenda',
+          tabBarTestID: 'tab-agenda',
           tabBarIcon: tabIcon('calendar-outline'),
           headerRight: () => <PeriodoPicker />,
         }}
@@ -106,6 +109,7 @@ export default function TabsLayout() {
         options={{
           title: 'SAGE Report',
           tabBarLabel: 'Report',
+          tabBarTestID: 'tab-report',
           tabBarIcon: tabIcon('bar-chart-outline'),
           headerRight: () => <PeriodoPicker />,
         }}
@@ -115,6 +119,7 @@ export default function TabsLayout() {
         options={{
           title: 'SAGE Auditório',
           tabBarLabel: 'Auditório',
+          tabBarTestID: 'tab-auditorio',
           tabBarIcon: tabIcon('business-outline'),
           headerRight: () => isAdmin ? (
             <Text style={{ color: '#FDE68A', fontWeight: '700', fontSize: 11, marginRight: 8 }}>
@@ -128,6 +133,7 @@ export default function TabsLayout() {
         options={{
           title: 'SAGE Manutenção',
           tabBarLabel: 'Manutenção',
+          tabBarTestID: 'tab-manutencao',
           tabBarIcon: tabIcon('construct-outline'),
           headerRight: () => isAdmin ? (
             <Text style={{ color: '#FDE68A', fontWeight: '700', fontSize: 11, marginRight: 8 }}>

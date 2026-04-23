@@ -5,7 +5,7 @@ name: "04 - Report Tab"
 - waitForAnimationToEnd:
     timeout: 8000
 - tapOn:
-    text: "Report"
+    id: "tab-report"
 # Report pode demorar para renderizar gráficos (Supabase + Skia)
 - waitForAnimationToEnd:
     timeout: 15000

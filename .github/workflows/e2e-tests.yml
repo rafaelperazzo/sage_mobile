@@ -8,9 +8,9 @@ on:
   #    - "**.md"
   #    - ".github/workflows/eas-update.yml"
   #    - ".github/workflows/build-and-submit.yml"
-  schedule:
+  #schedule:
     # Segunda a sexta às 06:00 UTC (03:00 BRT)
-    - cron: "0 6 * * 1-5"
+  #  - cron: "0 6 * * 1-5"
 
 jobs:
   # ── Job 1: Gera o APK de debug ─────────────────────────────────────────────

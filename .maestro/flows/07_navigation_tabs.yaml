@@ -12,7 +12,7 @@ name: "07 - Full Tab Navigation"
 
 # 2. Map
 - tapOn:
-    text: "Map"
+    id: "tab-map"
 - waitForAnimationToEnd:
     timeout: 10000
 - assertVisible:
@@ -20,7 +20,7 @@ name: "07 - Full Tab Navigation"
 
 # 3. Agenda
 - tapOn:
-    text: "Agenda"
+    id: "tab-agenda"
 - waitForAnimationToEnd:
     timeout: 10000
 - assertVisible:
@@ -28,7 +28,7 @@ name: "07 - Full Tab Navigation"
 
 # 4. Report
 - tapOn:
-    text: "Report"
+    id: "tab-report"
 - waitForAnimationToEnd:
     timeout: 15000
 - assertVisible:
@@ -36,7 +36,7 @@ name: "07 - Full Tab Navigation"
 
 # 5. Auditório
 - tapOn:
-    text: "Audit.*"
+    id: "tab-auditorio"
 - waitForAnimationToEnd:
     timeout: 10000
 - assertVisible:
@@ -44,7 +44,7 @@ name: "07 - Full Tab Navigation"
 
 # 6. Manutenção
 - tapOn:
-    text: "Manuten.*"
+    id: "tab-manutencao"
 - waitForAnimationToEnd:
     timeout: 10000
 - assertVisible:
@@ -52,7 +52,7 @@ name: "07 - Full Tab Navigation"
 
 # 7. Volta ao Início
 - tapOn:
-    text: "In.*cio"
+    id: "tab-inicio"
 - waitForAnimationToEnd:
     timeout: 8000
 - assertVisible:

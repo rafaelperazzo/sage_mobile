@@ -5,7 +5,7 @@ name: "06 - Manutenção Tab"
 - waitForAnimationToEnd:
     timeout: 8000
 - tapOn:
-    text: "Manuten.*"
+    id: "tab-manutencao"
 - waitForAnimationToEnd:
     timeout: 10000
 - assertVisible:
