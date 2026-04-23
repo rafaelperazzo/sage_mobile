@@ -1,0 +1,6 @@
+appId: com.rafaelperazzo.appdc
+---
+# Timeout global por assertion (ms)
+# Supabase pode demorar em cold start — 10s é conservador mas seguro
+env:
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: "60000"

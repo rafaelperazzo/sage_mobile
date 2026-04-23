@@ -1,0 +1,31 @@
+appId: com.rafaelperazzo.appdc
+name: "01 - Home Tab"
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+# Elementos estruturais fixos da tela Início
+- assertVisible:
+    text: "SAGE"
+- assertVisible:
+    text: "Sistema de Alocação e Gestão de Espaços"
+- assertVisible:
+    text: "Departamento de Computação · UFRPE"
+# Botão de login (modo público — sem autenticação)
+- assertVisible:
+    text: "Entrar como administrador"
+# Link para o Sobre
+- assertVisible:
+    text: "Sobre o SAGE"
+# Cards de módulos
+- assertVisible:
+    text: "SAGE Map"
+- assertVisible:
+    text: "SAGE Agenda"
+- assertVisible:
+    text: "SAGE Report"
+- assertVisible:
+    text: "SAGE Auditório"
+- assertVisible:
+    text: "SAGE Manutenção"
+- takeScreenshot: 01_home_tab

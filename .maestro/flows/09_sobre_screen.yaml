@@ -1,0 +1,35 @@
+appId: com.rafaelperazzo.appdc
+name: "09 - Sobre Screen"
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Garante que está na Home
+- assertVisible:
+    text: "Sobre o SAGE"
+
+# Navega para a tela Sobre
+- tapOn:
+    text: "Sobre o SAGE"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verifica conteúdo da tela Sobre (card de documentação do primeiro módulo)
+- assertVisible:
+    text: "SAGE Map"
+
+- takeScreenshot: 09_sobre_screen
+
+# Volta para a Home
+- pressKey: Back
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Confirma retorno à Home
+- assertVisible:
+    text: "SAGE"
+- assertVisible:
+    text: "Sistema de Alocação e Gestão de Espaços"
+
+- takeScreenshot: 09_sobre_back_to_home

@@ -1,0 +1,17 @@
+appId: com.rafaelperazzo.appdc
+name: "02 - Map Tab"
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    text: "Map"
+- waitForAnimationToEnd:
+    timeout: 10000
+# Header da aba
+- assertVisible:
+    text: "SAGE Map"
+# Badge ADMIN não deve aparecer em modo público
+- assertNotVisible:
+    text: "ADMIN"
+- takeScreenshot: 02_map_tab

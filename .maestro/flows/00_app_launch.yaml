@@ -1,0 +1,12 @@
+appId: com.rafaelperazzo.appdc
+name: "00 - App Launch"
+---
+# Verifica que o app abre sem crash e a tela Home é exibida
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+- assertVisible:
+    text: "SAGE"
+- assertVisible:
+    text: "Sistema de Alocação e Gestão de Espaços"
+- takeScreenshot: 00_app_launch

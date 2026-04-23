@@ -1,0 +1,16 @@
+appId: com.rafaelperazzo.appdc
+name: "06 - Manutenção Tab"
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    text: "Manuten.*"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible:
+    text: "SAGE Manutenção"
+# Badge ADMIN não deve aparecer em modo público
+- assertNotVisible:
+    text: "ADMIN"
+- takeScreenshot: 06_manutencao_tab

@@ -1,0 +1,13 @@
+appId: com.rafaelperazzo.appdc
+name: "03 - Agenda Tab"
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    text: "Agenda"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible:
+    text: "SAGE Agenda"
+- takeScreenshot: 03_agenda_tab

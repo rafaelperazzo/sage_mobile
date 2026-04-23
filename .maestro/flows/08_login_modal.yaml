@@ -1,0 +1,41 @@
+appId: com.rafaelperazzo.appdc
+name: "08 - Login Modal"
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Garante que está na Home em modo público
+- assertVisible:
+    text: "Entrar como administrador"
+
+# Abre o modal de login
+- tapOn:
+    text: "Entrar como administrador"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verifica elementos do formulário de login
+- assertVisible:
+    text: "Acesso Administrativo"
+- assertVisible:
+    text: "E-mail"
+- assertVisible:
+    text: "Senha"
+- assertVisible:
+    text: "Entrar"
+
+- takeScreenshot: 08_login_modal_open
+
+# Fecha o modal com o botão voltar do Android
+- pressKey: Back
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Confirma retorno à Home
+- assertVisible:
+    text: "SAGE"
+- assertVisible:
+    text: "Entrar como administrador"
+
+- takeScreenshot: 08_login_modal_closed

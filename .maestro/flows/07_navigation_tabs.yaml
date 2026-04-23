@@ -1,0 +1,61 @@
+appId: com.rafaelperazzo.appdc
+name: "07 - Full Tab Navigation"
+---
+# Navega por todas as 6 abas em sequência sem crash
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# 1. Início (ponto de partida)
+- assertVisible:
+    text: "SAGE"
+
+# 2. Map
+- tapOn:
+    text: "Map"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible:
+    text: "SAGE Map"
+
+# 3. Agenda
+- tapOn:
+    text: "Agenda"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible:
+    text: "SAGE Agenda"
+
+# 4. Report
+- tapOn:
+    text: "Report"
+- waitForAnimationToEnd:
+    timeout: 15000
+- assertVisible:
+    text: "SAGE Report"
+
+# 5. Auditório
+- tapOn:
+    text: "Audit.*"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible:
+    text: "SAGE Auditório"
+
+# 6. Manutenção
+- tapOn:
+    text: "Manuten.*"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible:
+    text: "SAGE Manutenção"
+
+# 7. Volta ao Início
+- tapOn:
+    text: "In.*cio"
+- waitForAnimationToEnd:
+    timeout: 8000
+- assertVisible:
+    text: "SAGE"
+
+- takeScreenshot: 07_navigation_complete
