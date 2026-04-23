@@ -100,16 +100,18 @@ while true; do
       STEP=5
       ;;
 
-    # --- Passo 5: Atualizar app.json ---
+    # --- Passo 5: Atualizar app.json (apenas major/minor) ---
     5)
-      VERSION="${MAJOR}.${MINOR}.${PATCH}"
-      node -e "
-        const fs = require('fs');
-        const app = require('./app.json');
-        app.expo.version = '$VERSION';
-        app.expo.runtimeVersion = '$VERSION';
-        fs.writeFileSync('./app.json', JSON.stringify(app, null, 2) + '\n');
-      " || { whiptail --title "Erro" --msgbox "Falha ao atualizar app.json." 8 50; exit 1; }
+      if [[ "$BUMP" != "patch" ]]; then
+        VERSION="${MAJOR}.${MINOR}.${PATCH}"
+        node -e "
+          const fs = require('fs');
+          const app = require('./app.json');
+          app.expo.version = '$VERSION';
+          app.expo.runtimeVersion = '$VERSION';
+          fs.writeFileSync('./app.json', JSON.stringify(app, null, 2) + '\n');
+        " || { whiptail --title "Erro" --msgbox "Falha ao atualizar app.json." 8 50; exit 1; }
+      fi
       STEP=6
       ;;
 
