@@ -3,11 +3,11 @@ name: "02 - Map Tab"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 - tapOn:
-    id: "tab-map"
+    text: "Map"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 # Header da aba
 - assertVisible:
     text: "SAGE Map"
@@ -15,3 +15,4 @@ name: "02 - Map Tab"
 - assertNotVisible:
     text: "ADMIN"
 - takeScreenshot: 02_map_tab
+- stopApp

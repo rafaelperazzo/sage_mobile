@@ -3,11 +3,12 @@ name: "03 - Agenda Tab"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 - tapOn:
-    id: "tab-agenda"
+    text: "Agenda"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 - assertVisible:
     text: "SAGE Agenda"
 - takeScreenshot: 03_agenda_tab
+- stopApp

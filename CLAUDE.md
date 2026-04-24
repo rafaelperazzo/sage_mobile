@@ -22,7 +22,15 @@ npx expo run:ios        # Run on iOS simulator
 ./fix.sh                # Quick native file fixes after prebuild
 ```
 
-No lint or test commands are configured in this project.
+# Testing (Maestro E2E)
+
+```bash
+maestro test .maestro/                                          # Run all flows
+maestro test .maestro/flows/00_app_launch.yaml                 # Run a single flow
+maestro test .maestro/ --format junit --output report.xml      # Run with JUnit report
+```
+
+Flows are in [.maestro/flows/](.maestro/flows/) and cover: `app_launch`, `home_tab`, `map_tab`, `agenda_tab`, `report_tab`, `auditorio_tab`, `manutencao_tab`, `navigation_tabs`, `login_modal`, `sobre_screen`.
 
 ## Architecture
 

@@ -4,7 +4,7 @@ name: "07 - Full Tab Navigation"
 # Navega por todas as 6 abas em sequência sem crash
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 
 # 1. Início (ponto de partida)
 - assertVisible:
@@ -12,50 +12,51 @@ name: "07 - Full Tab Navigation"
 
 # 2. Map
 - tapOn:
-    id: "tab-map"
+    text: "Map"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 - assertVisible:
     text: "SAGE Map"
 
 # 3. Agenda
 - tapOn:
-    id: "tab-agenda"
+    text: "Agenda"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 - assertVisible:
     text: "SAGE Agenda"
 
 # 4. Report
 - tapOn:
-    id: "tab-report"
+    text: "Report"
 - waitForAnimationToEnd:
-    timeout: 15000
+    timeout: 30000
 - assertVisible:
     text: "SAGE Report"
 
 # 5. Auditório
 - tapOn:
-    id: "tab-auditorio"
+    text: "Auditório"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 - assertVisible:
     text: "SAGE Auditório"
 
 # 6. Manutenção
 - tapOn:
-    id: "tab-manutencao"
+    text: "Manutenção"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 - assertVisible:
     text: "SAGE Manutenção"
 
 # 7. Volta ao Início
 - tapOn:
-    id: "tab-inicio"
+    text: "Início"
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 - assertVisible:
     text: "SAGE"
 
 - takeScreenshot: 07_navigation_complete
+- stopApp

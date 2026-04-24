@@ -3,14 +3,15 @@ name: "05 - Auditório Tab"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 - tapOn:
-    id: "tab-auditorio"
+    text: "Auditório"
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 20000
 - assertVisible:
     text: "SAGE Auditório"
 # Badge ADMIN não deve aparecer em modo público
 - assertNotVisible:
     text: "ADMIN"
 - takeScreenshot: 05_auditorio_tab
+- stopApp

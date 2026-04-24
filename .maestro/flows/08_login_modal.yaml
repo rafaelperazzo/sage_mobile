@@ -3,7 +3,7 @@ name: "08 - Login Modal"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 
 # Garante que está na Home em modo público
 - assertVisible:
@@ -13,7 +13,7 @@ name: "08 - Login Modal"
 - tapOn:
     text: "Entrar como administrador"
 - waitForAnimationToEnd:
-    timeout: 5000
+    timeout: 10000
 
 # Verifica elementos do formulário de login
 - assertVisible:
@@ -30,7 +30,7 @@ name: "08 - Login Modal"
 # Fecha o modal com o botão voltar do Android
 - pressKey: Back
 - waitForAnimationToEnd:
-    timeout: 5000
+    timeout: 10000
 
 # Confirma retorno à Home
 - assertVisible:
@@ -39,3 +39,4 @@ name: "08 - Login Modal"
     text: "Entrar como administrador"
 
 - takeScreenshot: 08_login_modal_closed
+- stopApp

@@ -3,7 +3,7 @@ name: "01 - Home Tab"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 # Elementos estruturais fixos da tela Início
 - assertVisible:
     text: "SAGE"
@@ -29,3 +29,4 @@ name: "01 - Home Tab"
 - assertVisible:
     text: "SAGE Manutenção"
 - takeScreenshot: 01_home_tab
+- stopApp

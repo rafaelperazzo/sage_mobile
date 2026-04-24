@@ -3,7 +3,7 @@ name: "09 - Sobre Screen"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 
 # Garante que está na Home
 - assertVisible:
@@ -13,7 +13,7 @@ name: "09 - Sobre Screen"
 - tapOn:
     text: "Sobre o SAGE"
 - waitForAnimationToEnd:
-    timeout: 5000
+    timeout: 10000
 
 # Verifica conteúdo da tela Sobre (card de documentação do primeiro módulo)
 - assertVisible:
@@ -24,7 +24,7 @@ name: "09 - Sobre Screen"
 # Volta para a Home
 - pressKey: Back
 - waitForAnimationToEnd:
-    timeout: 5000
+    timeout: 10000
 
 # Confirma retorno à Home
 - assertVisible:
@@ -33,3 +33,4 @@ name: "09 - Sobre Screen"
     text: "Sistema de Alocação e Gestão de Espaços"
 
 - takeScreenshot: 09_sobre_back_to_home
+- stopApp

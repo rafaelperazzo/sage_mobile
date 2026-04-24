@@ -3,12 +3,13 @@ name: "04 - Report Tab"
 ---
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 16000
 - tapOn:
-    id: "tab-report"
+    text: "Report"
 # Report pode demorar para renderizar gráficos (Supabase + Skia)
 - waitForAnimationToEnd:
-    timeout: 15000
+    timeout: 30000
 - assertVisible:
     text: "SAGE Report"
 - takeScreenshot: 04_report_tab
+- stopApp
