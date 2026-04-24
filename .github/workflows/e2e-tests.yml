@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug -PbundleInDebug=true --no-daemon
         env:
           GRADLE_OPTS: >-
             -Dorg.gradle.jvmargs='-Xmx4096m -XX:MaxMetaspaceSize=1024m'
