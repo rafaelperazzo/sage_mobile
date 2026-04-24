@@ -13,5 +13,5 @@ name: "06 - Manutenção Tab"
 # Badge ADMIN não deve aparecer em modo público
 - assertNotVisible:
     text: "ADMIN"
-- takeScreenshot: 06_manutencao_tab
+- takeScreenshot: screenshots/06_manutencao_tab
 - stopApp

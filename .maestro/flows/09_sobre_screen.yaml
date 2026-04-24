@@ -19,7 +19,7 @@ name: "09 - Sobre Screen"
 - assertVisible:
     text: "SAGE Map"
 
-- takeScreenshot: 09_sobre_screen
+- takeScreenshot: screenshots/09_sobre_screen
 
 # Volta para a Home
 - pressKey: Back
@@ -32,5 +32,5 @@ name: "09 - Sobre Screen"
 - assertVisible:
     text: "Sistema de Alocação e Gestão de Espaços"
 
-- takeScreenshot: 09_sobre_back_to_home
+- takeScreenshot: screenshots/09_sobre_back_to_home
 - stopApp

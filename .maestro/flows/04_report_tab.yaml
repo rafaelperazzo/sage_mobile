@@ -11,5 +11,5 @@ name: "04 - Report Tab"
     timeout: 30000
 - assertVisible:
     text: "SAGE Report"
-- takeScreenshot: 04_report_tab
+- takeScreenshot: screenshots/04_report_tab
 - stopApp

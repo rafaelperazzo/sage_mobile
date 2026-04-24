@@ -14,5 +14,5 @@ name: "02 - Map Tab"
 # Badge ADMIN não deve aparecer em modo público
 - assertNotVisible:
     text: "ADMIN"
-- takeScreenshot: 02_map_tab
+- takeScreenshot: screenshots/02_map_tab
 - stopApp

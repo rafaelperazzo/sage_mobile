@@ -10,5 +10,5 @@ name: "03 - Agenda Tab"
     timeout: 20000
 - assertVisible:
     text: "SAGE Agenda"
-- takeScreenshot: 03_agenda_tab
+- takeScreenshot: screenshots/03_agenda_tab
 - stopApp

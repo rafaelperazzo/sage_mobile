@@ -58,5 +58,5 @@ name: "07 - Full Tab Navigation"
 - assertVisible:
     text: "SAGE"
 
-- takeScreenshot: 07_navigation_complete
+- takeScreenshot: screenshots/07_navigation_complete
 - stopApp

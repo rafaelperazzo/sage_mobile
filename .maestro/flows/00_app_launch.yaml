@@ -9,5 +9,5 @@ name: "00 - App Launch"
     text: "SAGE"
 - assertVisible:
     text: "Sistema de Alocação e Gestão de Espaços"
-- takeScreenshot: 00_app_launch
+- takeScreenshot: screenshots/00_app_launch
 - stopApp

@@ -25,7 +25,7 @@ name: "08 - Login Modal"
 - assertVisible:
     text: "Entrar"
 
-- takeScreenshot: 08_login_modal_open
+- takeScreenshot: screenshots/08_login_modal_open
 
 # Fecha o modal com o botão voltar do Android
 - pressKey: Back
@@ -38,5 +38,5 @@ name: "08 - Login Modal"
 - assertVisible:
     text: "Entrar como administrador"
 
-- takeScreenshot: 08_login_modal_closed
+- takeScreenshot: screenshots/08_login_modal_closed
 - stopApp

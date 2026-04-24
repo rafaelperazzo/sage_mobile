@@ -28,5 +28,5 @@ name: "01 - Home Tab"
     text: "SAGE Auditório"
 - assertVisible:
     text: "SAGE Manutenção"
-- takeScreenshot: 01_home_tab
+- takeScreenshot: screenshots/01_home_tab
 - stopApp
