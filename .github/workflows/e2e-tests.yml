@@ -121,30 +121,28 @@ jobs:
             adb install -r apk/app-debug.apk
             sleep 5
 
-            # Executa todos os flows em sequência e gera relatório JUnit
-            maestro test --format junit --output maestro-results.xml .maestro/flows/
+            # Lança o app e aguarda para diagnóstico
+            adb shell am start -n com.rafaelperazzo.appdc/.MainActivity
+            sleep 10
+            adb exec-out screencap -p > diagnostic_screen.png
 
-      - name: Upload test report (JUnit)
+            # Executa todos os flows em sequência
+            maestro test .maestro/flows/
+
+      - name: Upload diagnostic screenshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-test-report
-          path: maestro-results.xml
-          retention-days: 30
+          name: diagnostic-screen
+          path: diagnostic_screen.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: maestro-screenshots
-          path: ~/.maestro/tests/**/*.png
+          path: screenshots/*.png
           if-no-files-found: ignore
           retention-days: 30
-
-      - name: Publish test results to GitHub summary
-        if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          files: maestro-results.xml
-          check_name: "Maestro E2E Results"
-          comment_mode: off
