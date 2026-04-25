@@ -2,7 +2,8 @@ appId: com.rafaelperazzo.appdc
 name: "07 - Full Tab Navigation"
 ---
 # Navega por todas as 6 abas em sequência sem crash
-- launchApp
+- launchApp:
+    clearState: true
 - waitForAnimationToEnd:
     timeout: 16000
 

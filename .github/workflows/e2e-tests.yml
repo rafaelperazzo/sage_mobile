@@ -49,6 +49,11 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Generate React Native Bundle
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+
       - name: Build Debug APK
         working-directory: android
         run: ./gradlew assembleDebug -PbundleInDebug=true --no-daemon
@@ -126,8 +131,8 @@ jobs:
             sleep 10
             adb exec-out screencap -p > diagnostic_screen.png
 
-            # Executa todos os flows em sequência
-            maestro test .maestro/flows/
+            # Executa cada flow individualmente via script
+            bash test.sh
 
       - name: Upload diagnostic screenshot
         if: always()

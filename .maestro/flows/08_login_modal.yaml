@@ -1,7 +1,8 @@
 appId: com.rafaelperazzo.appdc
 name: "08 - Login Modal"
 ---
-- launchApp
+- launchApp:
+    clearState: true
 - waitForAnimationToEnd:
     timeout: 16000
 

@@ -1,7 +1,8 @@
 appId: com.rafaelperazzo.appdc
 name: "06 - Manutenção Tab"
 ---
-- launchApp
+- launchApp:
+    clearState: true
 - waitForAnimationToEnd:
     timeout: 16000
 - tapOn:

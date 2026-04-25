@@ -2,7 +2,8 @@ appId: com.rafaelperazzo.appdc
 name: "00 - App Launch"
 ---
 # Verifica que o app abre sem crash e a tela Home é exibida
-- launchApp
+- launchApp:
+    clearState: true
 - waitForAnimationToEnd:
     timeout: 16000
 - assertVisible:
