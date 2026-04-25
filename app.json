@@ -2,8 +2,8 @@
   "expo": {
     "name": "SAGE",
     "slug": "sage",
-    "version": "24.0.15",
-    "runtimeVersion": "24.0.15",
+    "version": "24.1.0",
+    "runtimeVersion": "24.1.0",
     "updates": {
       "url": "https://u.expo.dev/bb4a9eba-9c40-49d1-a03a-fada08228e32"
     },
@@ -26,16 +26,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "pan",
-      "navigationBar": {
-        "barStyle": "dark-content",
-        "backgroundColor": "#00000000"
-      },
-      "statusBar": {
-        "barStyle": "dark-content",
-        "backgroundColor": "#00000000",
-        "translucent": true
-      },
       "package": "com.rafaelperazzo.appdc"
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content"
     },
     "web": {
       "favicon": "./assets/favicon.png"
