@@ -53,6 +53,9 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets
           npx expo export:embed --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Build Debug APK
         working-directory: android
@@ -104,6 +107,9 @@ jobs:
 
       - name: Run Maestro flows on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
         with:
           api-level: 31
           arch: x86_64
