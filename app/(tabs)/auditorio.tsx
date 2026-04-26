@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Linking, Modal } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useReservas } from '../../src/hooks/useReservas'
 import { useAuthContext } from '../../src/contexts/AuthContext'
 import { Ionicons } from '@expo/vector-icons'
@@ -42,6 +42,7 @@ export default function AuditorioScreen() {
 
   useFocusEffect(useCallback(() => { void reload() }, [reload]))
   const { width } = useWindowDimensions()
+  const { bottom: bottomInset } = useSafeAreaInsets()
 
   const weeks = buildCalendarWeeks(ano, mes)
   const cellW = Math.floor((width - 32) / 7)
@@ -252,7 +253,7 @@ export default function AuditorioScreen() {
 
       <Modal visible={selectedDate !== null} transparent animationType="slide" onRequestClose={() => setSelectedDate(null)}>
         <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} activeOpacity={1} onPress={() => setSelectedDate(null)} />
-        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '60%' }}>
+        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 20 + bottomInset, maxHeight: '60%' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827', flex: 1, textTransform: 'capitalize' }}>
               {selectedDate ? formatDateLabel(selectedDate) : ''}
