@@ -74,7 +74,7 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
 ## 🚀 Como Iniciar (Desenvolvimento)
 
 ### Pré-requisitos
-- Node.js (v20+)
+- Node.js (v24+)
 - NPM ou Yarn
 - Expo Go instalado no dispositivo
 
@@ -84,7 +84,7 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
    ```bash
    git clone https://github.com/rafaelperazzo/sage_mobile.git
    cd sage_mobile
-   npm install --legacy-peer-deps
+   npm ci
    ```
 
 2. **Ambiente:**
@@ -178,5 +178,5 @@ O workflow [`e2e-tests.yml`](.github/workflows/e2e-tests.yml) executa os testes 
 
 ---
 <div align="center">
-  <sub>Criado com ❤️ por <a href="https://github.com/rafaelperazzo">Rafael Perazzo</a></sub>
+  <sub>Idealizado e projetado por <a href="https://rafaelperazzo.github.io">Rafael Perazzo</a></sub>
 </div>
