@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useAlocacoesPorSala } from '../../../src/hooks/useAlocacoes'
 import { getSalaInfo } from '../../../src/constants/salas'
+import { getCursoColor } from '../../../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuthContext } from '../../../src/contexts/AuthContext'
 
@@ -18,7 +19,8 @@ export default function MapViewScreen() {
   const { alocacoes } = useAlocacoesPorSala(salaParam ?? '')
   const alocacao = alocacoes.find((a) => String(a.id) === id)
   const salaInfo = alocacao ? getSalaInfo(alocacao.sala) : undefined
-  const color = TIPO_COLOR[salaInfo?.tipo ?? 'sala_aula'] ?? '#1D4ED8'
+  const cursoColor = alocacao ? getCursoColor(alocacao.curso) : null
+  const color = cursoColor?.accent ?? TIPO_COLOR[salaInfo?.tipo ?? 'sala_aula'] ?? '#1D4ED8'
 
   if (!alocacao) {
     return (
@@ -48,6 +50,8 @@ export default function MapViewScreen() {
       </View>
 
       <Row label="Sala" value={alocacao.sala} />
+      {alocacao.curso && <Row label="Curso" value={alocacao.curso} />}
+      {alocacao.semestre != null && <Row label="Semestre" value={`${alocacao.semestre}º`} />}
       <Row label="Dia da Semana" value={alocacao.dia_semana} />
       <Row label="Horário" value={`${alocacao.inicio} – ${alocacao.fim}`} />
       {alocacao.professor && <Row label="Professor" value={alocacao.professor} />}

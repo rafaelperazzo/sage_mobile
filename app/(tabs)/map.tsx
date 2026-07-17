@@ -9,6 +9,7 @@ import { useAuthContext } from '../../src/contexts/AuthContext'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import { WeekGrid } from '../../src/modules/map/WeekGrid'
 import { BuscarSala } from '../../src/modules/map/BuscarSala'
+import { getCursoColor } from '../../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
 import type { Alocacao } from '../../src/types'
 
@@ -45,6 +46,9 @@ export default function MapScreen() {
 
   const currentSalaInfo = SALAS.find((s) => s.nome === selectedSala)
   const color = TIPO_BORDER[currentSalaInfo?.tipo ?? 'sala_aula'] ?? '#2563EB'
+  const cursosNaSala = Array.from(
+    new Set(alocacoes.map((a) => a.curso).filter((c): c is string => !!c))
+  ).sort()
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['left', 'right', 'bottom']}>
@@ -137,6 +141,39 @@ export default function MapScreen() {
               </TouchableOpacity>
             )}
           </View>
+        )}
+
+        {/* Legenda de cores por curso */}
+        {mode === 'grade' && cursosNaSala.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 8, gap: 6 }}
+            style={{ flexGrow: 0 }}
+          >
+            {cursosNaSala.map((curso) => {
+              const cc = getCursoColor(curso)!
+              return (
+                <View
+                  key={curso}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 4,
+                    backgroundColor: cc.bg,
+                    borderWidth: 1,
+                    borderColor: cc.border,
+                    borderRadius: 12,
+                    paddingHorizontal: 8,
+                    paddingVertical: 3,
+                  }}
+                >
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: cc.accent }} />
+                  <Text style={{ fontSize: 10, fontWeight: '600', color: '#374151' }}>{curso}</Text>
+                </View>
+              )
+            })}
+          </ScrollView>
         )}
       </View>
 

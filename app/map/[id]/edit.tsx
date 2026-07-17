@@ -126,8 +126,14 @@ export default function MapEditScreen() {
         style={{ borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, padding: 12, fontSize: 14, color: '#111827', marginBottom: 14, backgroundColor: '#F9FAFB' }}
       />
 
-      <View style={{ backgroundColor: '#F3F4F6', borderRadius: 10, padding: 10, marginBottom: 14 }}>
+      <View style={{ backgroundColor: '#F3F4F6', borderRadius: 10, padding: 10, marginBottom: 14, gap: 4 }}>
         <Text style={{ fontSize: 11, color: '#6B7280' }}>Sala: <Text style={{ fontWeight: '700', color: '#374151' }}>{alocacao.sala}</Text></Text>
+        {alocacao.curso && (
+          <Text style={{ fontSize: 11, color: '#6B7280' }}>Curso: <Text style={{ fontWeight: '700', color: '#374151' }}>{alocacao.curso}</Text></Text>
+        )}
+        {alocacao.semestre != null && (
+          <Text style={{ fontSize: 11, color: '#6B7280' }}>Semestre: <Text style={{ fontWeight: '700', color: '#374151' }}>{alocacao.semestre}º</Text></Text>
+        )}
       </View>
 
       <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 4 }}>Dia *</Text>

@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native'
 import type { Alocacao } from '../../types'
 import { getSalaInfo } from '../../constants/salas'
+import { getCursoColor } from '../../lib/cursoColors'
 
 const TIPO_BG: Record<string, string> = {
   sala_aula: '#EFF6FF',
@@ -28,14 +29,22 @@ interface AllocationCardProps {
 export function AllocationCard({ alocacao, compact = false }: AllocationCardProps) {
   const info = getSalaInfo(alocacao.sala)
   const tipo = info?.tipo ?? 'sala_aula'
+  const cursoColor = getCursoColor(alocacao.curso)
+  const bg = cursoColor?.bg ?? TIPO_BG[tipo]!
+  const border = cursoColor?.border ?? TIPO_BORDER[tipo]!
+  const accent = cursoColor?.accent ?? TIPO_TEXT[tipo]!
+  // Texto fica em tinta neutra — a identidade do curso é carregada pelo accent (barra/borda), nunca pelo texto.
+  const text = cursoColor ? '#111827' : TIPO_TEXT[tipo]!
 
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: TIPO_BG[tipo],
+        backgroundColor: bg,
+        borderWidth: compact ? 0 : 1,
+        borderColor: border,
         borderLeftWidth: 3,
-        borderLeftColor: TIPO_TEXT[tipo],
+        borderLeftColor: accent,
         borderRadius: 4,
         padding: compact ? 3 : 6,
         overflow: 'hidden',
@@ -45,7 +54,7 @@ export function AllocationCard({ alocacao, compact = false }: AllocationCardProp
         style={{
           fontSize: compact ? 9 : 11,
           fontWeight: '700',
-          color: TIPO_TEXT[tipo],
+          color: text,
           lineHeight: compact ? 12 : 14,
         }}
         numberOfLines={compact ? 2 : 3}
