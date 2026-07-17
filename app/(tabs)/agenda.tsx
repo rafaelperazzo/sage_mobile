@@ -8,6 +8,7 @@ import { DIAS, HORAS, getSalaInfo, TIPO_LABEL } from '../../src/constants/salas'
 import type { Alocacao } from '../../src/types'
 import { AllocationCard } from '../../src/modules/map/AllocationCard'
 import { timeToMinutes } from '../../src/modules/map/gridUtils'
+import { normalize } from '../../src/lib/normalize'
 import { Ionicons } from '@expo/vector-icons'
 
 const ROW_HEIGHT = 52
@@ -155,10 +156,6 @@ function TeacherGrid({ alocacoes }: { alocacoes: Alocacao[] }) {
       {selected && <AlocacaoModal alocacao={selected} onClose={() => setSelected(null)} />}
     </>
   )
-}
-
-function normalize(s: string) {
-  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
 
 export default function AgendaScreen() {

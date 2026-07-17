@@ -1,3 +1,14 @@
+# Gera um build nativo de produção (.aab) e submete automaticamente à Play Store.
+#
+# Quando roda: ao dar push de uma tag "vX.Y.0" (bump de major ou minor, patch sempre 0),
+# ex. v1.5.0, v2.0.0. Normalmente disparado por `./deploy.sh` escolhendo "major" ou "minor".
+# Tags "vX.Y.Z" com Z >= 1 (patch) NÃO acionam este workflow — essas acionam eas-update.yml.
+#
+# O que faz: atualiza `version`/`runtimeVersion` em app.json a partir da tag, roda
+# `eas build --platform android --profile production --local` (build local dentro do runner,
+# sem depender dos servidores de build da EAS) e depois `eas submit` para publicar o .aab
+# gerado na Play Store. Requer os secrets EXPO_TOKEN, EXPO_PUBLIC_SUPABASE_URL/ANON_KEY e
+# GOOGLE_SERVICE_ACCOUNT_JSON (credencial de submissão à Play Store, removida ao final).
 name: Build & Submit Android
 
 on:

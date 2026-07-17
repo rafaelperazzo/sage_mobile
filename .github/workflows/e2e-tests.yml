@@ -1,3 +1,14 @@
+# Roda a suíte de testes E2E (Maestro) num emulador Android, sem publicar nada.
+#
+# Quando roda: manualmente (workflow_dispatch) ou automaticamente de segunda a sexta às
+# 06:00 UTC (03:00 BRT). O trigger de push em `master` está presente mas comentado/desativado.
+#
+# O que faz (2 jobs em sequência):
+#   1. build-apk: `expo prebuild` + `expo export:embed` + `gradlew assembleDebug` para gerar
+#      um APK de debug (com o bundle JS já embutido), publicado como artifact.
+#   2. e2e-tests: baixa esse APK, sobe um emulador Android (via reactivecircus/android-emulator-runner),
+#      instala o app e roda `test.sh` (todos os flows de .maestro/flows/*.yaml). Publica como
+#      artifacts um screenshot de diagnóstico e as screenshots geradas pelo Maestro.
 name: E2E Tests (Maestro)
 
 on:

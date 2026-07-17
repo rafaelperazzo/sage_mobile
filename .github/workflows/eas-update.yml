@@ -1,3 +1,11 @@
+# Publica uma atualização OTA (over-the-air) via Expo Updates — sem gerar um novo build nativo.
+#
+# Quando roda: ao dar push de uma tag "vX.Y.Z" com Z >= 1 (bump de patch), ex. v1.4.1, v1.4.2.
+# Normalmente disparado por `./deploy.sh` escolhendo "patch". Tags "vX.Y.0" (major/minor)
+# NÃO acionam este workflow — essas acionam build-and-submit.yml em vez disso.
+#
+# O que faz: instala as dependências e roda `eas update --branch production`, publicando o
+# bundle JS/assets atual para os clientes já instalados na Play Store (branch "production").
 name: EAS Update (OTA)
 
 on:
