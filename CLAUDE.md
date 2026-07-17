@@ -15,11 +15,9 @@ npx expo run:android    # Run on Android device/emulator
 npx expo run:ios        # Run on iOS simulator
 
 # Build & Deploy (custom scripts)
-./prebuild.sh           # Clean prebuild with native fixes
 ./update.sh "msg"       # OTA update (JS/assets only, no store submission)
 ./build-and-submit.sh   # Local native build + Play Store submission
 ./build-submit.sh       # EAS cloud build + Play Store submission
-./fix.sh                # Quick native file fixes after prebuild
 ```
 
 # Testing (Maestro E2E)

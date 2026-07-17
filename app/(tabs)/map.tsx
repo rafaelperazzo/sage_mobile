@@ -89,7 +89,7 @@ export default function MapScreen() {
             <Picker
               selectedValue={periodo}
               onValueChange={setPeriodo}
-              style={{ height: 36, color: '#374151' }}
+              style={{ color: '#374151' }}
               dropdownIconColor="#9CA3AF"
             >
               {periodos.map((p) => (
