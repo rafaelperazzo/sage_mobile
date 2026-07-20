@@ -24,9 +24,10 @@ const TIPO_TEXT: Record<string, string> = {
 interface AllocationCardProps {
   alocacao: Alocacao
   compact?: boolean
+  showSala?: boolean
 }
 
-export function AllocationCard({ alocacao, compact = false }: AllocationCardProps) {
+export function AllocationCard({ alocacao, compact = false, showSala = false }: AllocationCardProps) {
   const info = getSalaInfo(alocacao.sala)
   const tipo = info?.tipo ?? 'sala_aula'
   const cursoColor = getCursoColor(alocacao.curso)
@@ -61,9 +62,14 @@ export function AllocationCard({ alocacao, compact = false }: AllocationCardProp
       >
         {alocacao.disciplina}
       </Text>
-      {!compact && alocacao.professor && (
+      {(!compact || showSala) && alocacao.professor && (
         <Text style={{ fontSize: 9, color: '#6B7280', marginTop: 1 }} numberOfLines={1}>
           {alocacao.professor}
+        </Text>
+      )}
+      {showSala && (
+        <Text style={{ fontSize: 9, color: '#9CA3AF', marginTop: 1 }} numberOfLines={1}>
+          {alocacao.sala}
         </Text>
       )}
       {!compact && (

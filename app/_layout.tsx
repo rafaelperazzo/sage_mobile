@@ -26,6 +26,10 @@ export default function RootLayout() {
                 options={{ title: 'Sobre o SAGE', headerShown: true }}
               />
               <Stack.Screen
+                name="grade-curricular"
+                options={{ title: 'Grade Curricular', headerShown: true }}
+              />
+              <Stack.Screen
                 name="map/create"
                 options={{ title: 'Nova Alocação', presentation: 'modal' }}
               />

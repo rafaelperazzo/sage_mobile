@@ -36,8 +36,11 @@ export default function MapScreen() {
   useFocusEffect(useCallback(() => { void reload() }, [reload]))
 
   function handleCellPress(alocacao: Alocacao) {
-    const path = isAdmin ? '/map/[id]/edit' : '/map/[id]/view'
-    router.push({ pathname: path, params: { id: alocacao.id, sala: alocacao.sala } } as never)
+    if (isAdmin) {
+      router.push({ pathname: '/map/[id]/edit', params: { id: alocacao.id, sala: alocacao.sala } } as never)
+    } else {
+      router.push({ pathname: '/map/[id]/view', params: { id: alocacao.id } } as never)
+    }
   }
 
   function handleEmptyCellPress(dia: string, hora: string) {

@@ -22,6 +22,7 @@ const MODULES: Module[] = [
   { route: '/(tabs)/report',    icon: 'bar-chart-outline', iconBg: '#ECFDF5', iconColor: '#065F46', borderColor: '#A7F3D0', title: 'SAGE Report' },
   { route: '/(tabs)/auditorio', icon: 'business-outline',  iconBg: '#FFFBEB', iconColor: '#92400E', borderColor: '#FDE68A', title: 'SAGE Auditório' },
   { route: '/(tabs)/manutencao',icon: 'construct-outline', iconBg: '#FFF7ED', iconColor: '#9A3412', borderColor: '#FED7AA', title: 'SAGE Manutenção' },
+  { route: '/grade-curricular', icon: 'school-outline',   iconBg: '#FDF2F6', iconColor: '#BE185D', borderColor: '#FBCFE8', title: 'Grade Curricular' },
 ]
 
 function ModuleCard({ item, cellWidth }: { item: Module; cellWidth: number }) {

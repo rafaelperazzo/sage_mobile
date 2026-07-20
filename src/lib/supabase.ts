@@ -86,6 +86,17 @@ export async function fetchAlocacoesPorSala(sala: string, periodo: string): Prom
   return data as Alocacao[]
 }
 
+export async function fetchAlocacaoById(id: number): Promise<Alocacao | null> {
+  const { data, error } = await supabase
+    .from(TABLE_NAME)
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as Alocacao | null
+}
+
 // ── Operações CRUD ──────────────────────────────────────────────
 
 export async function insertAlocacao(input: AlocacaoInput, periodo: string): Promise<Alocacao> {

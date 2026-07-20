@@ -1,11 +1,13 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
-import { useAlocacoesPorSala } from '../../../src/hooks/useAlocacoes'
+import { fetchAlocacaoById } from '../../../src/lib/supabase'
 import { getSalaInfo } from '../../../src/constants/salas'
 import { getCursoColor } from '../../../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuthContext } from '../../../src/contexts/AuthContext'
+import type { Alocacao } from '../../../src/types'
 
 const TIPO_COLOR: Record<string, string> = {
   sala_aula: '#1D4ED8',
@@ -14,13 +16,30 @@ const TIPO_COLOR: Record<string, string> = {
 }
 
 export default function MapViewScreen() {
-  const { id, sala: salaParam } = useLocalSearchParams<{ id: string; sala: string }>()
+  const { id } = useLocalSearchParams<{ id: string }>()
   const { isAdmin } = useAuthContext()
-  const { alocacoes } = useAlocacoesPorSala(salaParam ?? '')
-  const alocacao = alocacoes.find((a) => String(a.id) === id)
+  const [alocacao, setAlocacao] = useState<Alocacao | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!id) return
+    setLoading(true)
+    fetchAlocacaoById(Number(id))
+      .then(setAlocacao)
+      .finally(() => setLoading(false))
+  }, [id])
+
   const salaInfo = alocacao ? getSalaInfo(alocacao.sala) : undefined
   const cursoColor = alocacao ? getCursoColor(alocacao.curso) : null
   const color = cursoColor?.accent ?? TIPO_COLOR[salaInfo?.tipo ?? 'sala_aula'] ?? '#1D4ED8'
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color="#1D4ED8" />
+      </View>
+    )
+  }
 
   if (!alocacao) {
     return (

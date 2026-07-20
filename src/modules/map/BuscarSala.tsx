@@ -45,8 +45,11 @@ function SalaResultCard({ alocacao, isAdmin }: { alocacao: Alocacao; isAdmin: bo
   const tipoLabel = TIPO_LABEL[tipo]
 
   function handlePress() {
-    const path = isAdmin ? '/map/[id]/edit' : '/map/[id]/view'
-    router.push({ pathname: path, params: { id: alocacao.id, sala: alocacao.sala } } as never)
+    if (isAdmin) {
+      router.push({ pathname: '/map/[id]/edit', params: { id: alocacao.id, sala: alocacao.sala } } as never)
+    } else {
+      router.push({ pathname: '/map/[id]/view', params: { id: alocacao.id } } as never)
+    }
   }
 
   return (

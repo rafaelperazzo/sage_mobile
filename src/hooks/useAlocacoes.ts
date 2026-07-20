@@ -52,6 +52,34 @@ export function useAlocacoes() {
   return { alocacoes, loading, error, reload: load }
 }
 
+// ── Hook para todas as alocações de um período explícito (Grade Curricular) ─
+
+export function useAlocacoesPorPeriodo(periodo: string) {
+  const [alocacoes, setAlocacoes] = useState<Alocacao[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    if (!periodo) return
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await fetchAlocacoes(periodo)
+      setAlocacoes(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar alocações')
+    } finally {
+      setLoading(false)
+    }
+  }, [periodo])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  return { alocacoes, loading, error, reload: load }
+}
+
 // ── Hook para alocações de uma sala no período (SAGE Map) ────────
 
 interface UseAlocacoesPorSalaReturn {
