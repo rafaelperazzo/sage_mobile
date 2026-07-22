@@ -2,8 +2,8 @@
   "expo": {
     "name": "SAGE",
     "slug": "sage",
-    "version": "28.0.0",
-    "runtimeVersion": "28.0.0",
+    "version": "28.1.0",
+    "runtimeVersion": "28.1.0",
     "updates": {
       "url": "https://u.expo.dev/bb4a9eba-9c40-49d1-a03a-fada08228e32"
     },
@@ -48,7 +48,9 @@
             "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
             "compileSdkVersion": 36,
             "targetSdkVersion": 36,
-            "enableEdgeToEdge": true
+            "enableEdgeToEdge": true,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
           }
         }
       ]
