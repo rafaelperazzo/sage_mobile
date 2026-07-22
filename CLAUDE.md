@@ -95,6 +95,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 ## Build System
 
 - EAS Build configuration in [eas.json](eas.json): `production` profile produces an AAB for Play Store; `preview` produces an APK.
+- Android `compileSdkVersion`/`targetSdkVersion` are pinned to 36 (Android 16) via the `expo-build-properties` plugin in `app.json`, per Play Store's target API level requirement. Bump both together on future SDK requirement changes.
 - Android `versionCode` and iOS `buildNumber` auto-increment on EAS builds.
 - Legacy peer deps mode is required: `NPM_CONFIG_LEGACY_PEER_DEPS=true`.
 - Native Android fixes (deprecated edge-to-edge style attributes pulled in by libraries) are applied by the config plugin [plugins/withAndroidFixes.js](plugins/withAndroidFixes.js), registered in `app.json`'s `plugins` array — it runs on every `expo prebuild`. There is no separate `prebuild.sh`/`fix.sh` script for this anymore.
