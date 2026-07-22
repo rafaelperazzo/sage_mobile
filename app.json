@@ -47,7 +47,7 @@
             ],
             "gradleJvmArgs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
             "compileSdkVersion": 36,
-            "targetSdkVersion": 35,
+            "targetSdkVersion": 36,
             "enableEdgeToEdge": true
           }
         }
