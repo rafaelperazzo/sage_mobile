@@ -12,41 +12,42 @@
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-native-community/datetimepicker": "8.6.0",
+    "@react-native-community/datetimepicker": "9.1.0",
     "@react-native-picker/picker": "^2.11.4",
-    "@shopify/react-native-skia": "2.4.18",
+    "@shopify/react-native-skia": "2.6.2",
     "@supabase/supabase-js": "^2.103.1",
-    "expo": "~55.0.17",
-    "expo-build-properties": "~55.0.13",
-    "expo-constants": "~55.0.14",
-    "expo-font": "^55.0.6",
-    "expo-linking": "~55.0.14",
-    "expo-router": "~55.0.13",
-    "expo-secure-store": "~55.0.13",
-    "expo-status-bar": "~55.0.5",
-    "expo-system-ui": "~55.0.16",
-    "expo-updates": "~55.0.21",
+    "expo": "57",
+    "expo-build-properties": "~57.0.7",
+    "expo-constants": "~57.0.7",
+    "expo-font": "~57.0.1",
+    "expo-linking": "~57.0.4",
+    "expo-router": "~57.0.8",
+    "expo-secure-store": "~57.0.1",
+    "expo-splash-screen": "~57.0.5",
+    "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.1",
+    "expo-updates": "~57.0.10",
     "hermes-compiler": "^250829098.0.2",
-    "react": "19.1.0",
-    "react-native": "^0.83.6",
-    "react-native-gesture-handler": "^2.31.1",
-    "react-native-reanimated": "^4.3.0",
-    "react-native-safe-area-context": "~5.6.2",
-    "react-native-screens": "~4.23.0",
-    "react-native-svg": "15.15.3",
-    "react-native-worklets": "^0.8.1",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.0",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-worklets": "0.10.0",
     "victory-native": "^41.20.2"
   },
   "devDependencies": {
     "@types/react": "~19.2.10",
-    "babel-preset-expo": "^55.0.17",
+    "babel-preset-expo": "~57.0.0",
     "nativewind": "^4.2.3",
     "tailwindcss": "^3.4.19",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.3"
   },
   "private": true,
   "overrides": {
-    "react": "19.1.0"
+    "react": "19.2.3"
   },
   "expo": {
     "install": {
@@ -58,5 +59,8 @@
         "react-native-gesture-handler"
       ]
     }
+  },
+  "allowScripts": {
+    "@shopify/react-native-skia@2.6.2": true
   }
 }

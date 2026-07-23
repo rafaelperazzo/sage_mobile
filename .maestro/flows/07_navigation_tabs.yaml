@@ -34,6 +34,10 @@ name: "07 - Full Tab Navigation"
     timeout: 30000
 - assertVisible:
     text: "SAGE Report"
+# Aguarda o gráfico (victory-native) terminar de renderizar antes de trocar de aba,
+# senão o tap seguinte pode ser engolido pela thread JS ainda ocupada.
+- assertVisible:
+    text: "Laboratório"
 
 # 5. Auditório
 - tapOn:
