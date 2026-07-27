@@ -6,8 +6,8 @@
 
   *Desenvolvido para o Departamento de Computação da UFRPE*
 
-  [![React Native](https://img.shields.io/badge/React_Native-0.81.5-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
-  [![Expo](https://img.shields.io/badge/Expo-SDK_55-000020?logo=expo&logoColor=white)](https://expo.dev/)
+  [![React Native](https://img.shields.io/badge/React_Native-0.86.0-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
+  [![Expo](https://img.shields.io/badge/Expo-SDK_57-000020?logo=expo&logoColor=white)](https://expo.dev/)
   [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
   [![Tailwind CSS](https://img.shields.io/badge/NativeWind-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://www.nativewind.dev/)
   [![License](https://img.shields.io/badge/License-Private-lightgrey.svg)](#)
@@ -51,8 +51,10 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
 
 ## ✨ Funcionalidades
 
-- 🗺️ **Mapa Dinâmico:** Visualização em tempo real da ocupação das salas de aula.
+- 🗺️ **Mapa Dinâmico:** Visualização em tempo real da ocupação das salas, com destaque para horários livres e para a aula em andamento.
 - 📅 **Agenda Acadêmica:** Filtros inteligentes por semestre e dia da semana.
+- 📊 **Relatório de Ocupação:** Métricas de uso por sala e tipo de espaço, filtráveis por período letivo.
+- 📚 **Grade Curricular:** Visualização da grade por curso e semestre, com detecção de horários sobrepostos.
 - 🎭 **Reservas de Auditório:** Sistema completo de agendamento com detecção de conflitos.
 - 🛠️ **Gestão de Manutenção:** Abertura de tickets com status em tempo real.
 - 🔄 **Atualizações Instantâneas:** Receba melhorias sem precisar atualizar pela loja (OTA).
