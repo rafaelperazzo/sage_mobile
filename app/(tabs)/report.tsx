@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native'
+import { Picker } from '@react-native-picker/picker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAlocacoes } from '../../src/hooks/useAlocacoes'
+import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import { calcularOcupacao } from '../../src/modules/report/occupancyUtils'
 import { CartesianChart, Bar } from 'victory-native'
 
@@ -31,6 +33,7 @@ function OccupancyBar({ percentual, tipo }: { percentual: number; tipo: string }
 
 export default function ReportScreen() {
   const { alocacoes, loading } = useAlocacoes()
+  const { periodo, setPeriodo, periodos } = usePeriodo()
   const { width } = useWindowDimensions()
   const [selectedSala, setSelectedSala] = useState<string | null>(null)
 
@@ -57,6 +60,20 @@ export default function ReportScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['left', 'right', 'bottom']}>
+      {periodos.length > 1 && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}>
+          <Picker
+            selectedValue={periodo}
+            onValueChange={setPeriodo}
+            style={{ flex: 1, color: '#374151' }}
+            dropdownIconColor="#9CA3AF"
+          >
+            {periodos.map((p) => (
+              <Picker.Item key={p} label={p} value={p} />
+            ))}
+          </Picker>
+        </View>
+      )}
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
         {/* Resumo */}
         <View style={{ flexDirection: 'row', gap: 10, padding: 16 }}>

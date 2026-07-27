@@ -25,17 +25,18 @@ interface AllocationCardProps {
   alocacao: Alocacao
   compact?: boolean
   showSala?: boolean
+  isCurrent?: boolean
 }
 
-export function AllocationCard({ alocacao, compact = false, showSala = false }: AllocationCardProps) {
+export function AllocationCard({ alocacao, compact = false, showSala = false, isCurrent = false }: AllocationCardProps) {
   const info = getSalaInfo(alocacao.sala)
   const tipo = info?.tipo ?? 'sala_aula'
   const cursoColor = getCursoColor(alocacao.curso)
-  const bg = cursoColor?.bg ?? TIPO_BG[tipo]!
-  const border = cursoColor?.border ?? TIPO_BORDER[tipo]!
-  const accent = cursoColor?.accent ?? TIPO_TEXT[tipo]!
+  const bg = isCurrent ? '#FEF9C3' : cursoColor?.bg ?? TIPO_BG[tipo]!
+  const border = isCurrent ? '#FACC15' : cursoColor?.border ?? TIPO_BORDER[tipo]!
+  const accent = isCurrent ? '#CA8A04' : cursoColor?.accent ?? TIPO_TEXT[tipo]!
   // Texto fica em tinta neutra — a identidade do curso é carregada pelo accent (barra/borda), nunca pelo texto.
-  const text = cursoColor ? '#111827' : TIPO_TEXT[tipo]!
+  const text = isCurrent ? '#78350F' : cursoColor ? '#111827' : TIPO_TEXT[tipo]!
 
   return (
     <View

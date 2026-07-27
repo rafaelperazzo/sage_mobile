@@ -1,6 +1,7 @@
 import { Tabs, router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { TouchableOpacity, Text } from 'react-native'
+import type { ColorValue } from 'react-native'
 import { useAuthContext } from '../../src/contexts/AuthContext'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import { Picker } from '@react-native-picker/picker'
@@ -46,8 +47,8 @@ function LoginButton() {
 }
 
 function tabIcon(name: IoniconsName) {
-  return ({ color }: { color: string }) => (
-    <Ionicons name={name} size={22} color={color} />
+  return ({ color }: { color: ColorValue }) => (
+    <Ionicons name={name} size={22} color={color as string} />
   )
 }
 

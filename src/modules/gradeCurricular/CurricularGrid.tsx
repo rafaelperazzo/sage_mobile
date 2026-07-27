@@ -9,7 +9,6 @@ const ROW_HEIGHT = 52
 const COL_WIDTH = 140
 const HOUR_COL_WIDTH = 44
 const HEADER_H = 32
-const FIRST_HOUR = 7 // 07:00
 
 interface CurricularGridProps {
   alocacoes: Alocacao[]
@@ -30,9 +29,28 @@ function timeToMinutes(time: string): number {
   return (h ?? 0) * 60 + (m ?? 0)
 }
 
+// Posição vertical (em px) de um horário, contando apenas as linhas visíveis (com alocação)
+function offsetForMinutes(mins: number, horasVisiveis: string[]): number {
+  const horaCheia = `${String(Math.floor(mins / 60)).padStart(2, '0')}:00`
+  const idx = Math.max(0, horasVisiveis.indexOf(horaCheia))
+  const fractionalMin = mins - Math.floor(mins / 60) * 60
+  return idx * ROW_HEIGHT + (fractionalMin / 60) * ROW_HEIGHT
+}
+
 export function CurricularGrid({ alocacoes, onCellPress }: CurricularGridProps) {
   const scrollRef = useRef<ScrollView>(null)
-  const totalGridH = HORAS.length * ROW_HEIGHT
+
+  // Apenas horários com pelo menos uma alocação são exibidos
+  const horasOcupadas = new Set<string>()
+  for (const a of alocacoes) {
+    const inicioMin = timeToMinutes(a.inicio)
+    const fimMin = timeToMinutes(a.fim)
+    for (let m = inicioMin; m < fimMin; m += 60) {
+      horasOcupadas.add(`${String(Math.floor(m / 60)).padStart(2, '0')}:00`)
+    }
+  }
+  const horasVisiveis = HORAS.filter((h) => horasOcupadas.has(h))
+  const totalGridH = horasVisiveis.length * ROW_HEIGHT
 
   const byDia: Record<string, Alocacao[]> = {}
   for (const dia of DIAS) byDia[dia] = []
@@ -53,7 +71,7 @@ export function CurricularGrid({ alocacoes, onCellPress }: CurricularGridProps) 
       {/* Coluna de horas */}
       <View style={{ width: HOUR_COL_WIDTH }}>
         <View style={{ height: HEADER_H }} />
-        {HORAS.map((hora) => (
+        {horasVisiveis.map((hora) => (
           <View
             key={hora}
             style={{
@@ -104,7 +122,7 @@ export function CurricularGrid({ alocacoes, onCellPress }: CurricularGridProps) 
               }}
             >
               {/* Linhas de hora (visuais, sem interação) */}
-              {HORAS.map((hora, idx) => (
+              {horasVisiveis.map((hora, idx) => (
                 <View
                   key={hora}
                   style={{
@@ -122,7 +140,7 @@ export function CurricularGrid({ alocacoes, onCellPress }: CurricularGridProps) 
               {laidOut.map(({ alocacao, col, totalCols }) => {
                 const inicioMin = timeToMinutes(alocacao.inicio)
                 const fimMin = timeToMinutes(alocacao.fim)
-                const topOffset = (inicioMin / 60 - FIRST_HOUR) * ROW_HEIGHT
+                const topOffset = offsetForMinutes(inicioMin, horasVisiveis)
                 const height = ((fimMin - inicioMin) / 60) * ROW_HEIGHT - 2
 
                 const laneWidth = (COL_WIDTH - 6) / totalCols
