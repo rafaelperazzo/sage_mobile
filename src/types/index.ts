@@ -30,6 +30,19 @@ export interface Reserva {
 
 export type ReservaInput = Omit<Reserva, 'id'>
 
+export interface InfraSala {
+  id: number
+  sala: string
+  cadeiras: number | null
+  projetor: number | null       // 0/1
+  tv: number | null             // 0/1
+  hdmi: number | null           // 0/1
+  arcondicionado: number        // quantidade de unidades
+  computadores: number | null
+}
+
+export type InfraSalaInput = Omit<InfraSala, 'id'>
+
 export interface Manutencao {
   id: number
   numero_rt: string

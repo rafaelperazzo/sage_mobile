@@ -45,15 +45,20 @@ Flows are in [.maestro/flows/](.maestro/flows/) and cover: `app_launch`, `home_t
 
 ### Routing
 
-Expo Router file-based routing under [app/](app/). Tab navigation lives in [app/(tabs)/](app/(tabs)/). Dynamic CRUD routes follow the pattern `app/[module]/[id]/` with `create.tsx`, `view.tsx`, and `edit.tsx` screens.
+Expo Router file-based routing under [app/](app/). Tab navigation lives in [app/(tabs)/](app/(tabs)/). Dynamic CRUD routes follow the pattern `app/[module]/[id]/` with `create.tsx`, `view.tsx`, and `edit.tsx` screens. All non-tab routes must be registered as `<Stack.Screen>` entries in [app/_layout.tsx](app/_layout.tsx) (title, `presentation: 'modal'`, etc.) — a route file alone is not enough to get the right header/presentation.
+
+Two standalone (non-CRUD) routes worth knowing about:
+- [app/disciplinas.tsx](app/disciplinas.tsx) — read-only list of all disciplines for the active período (excludes `curso === 'BSI'`), linked from the home screen ([app/(tabs)/index.tsx](app/(tabs)/index.tsx)), just below the "Sobre o SAGE" link.
+- `app/infra/[sala]/edit.tsx` — admin-only infra editor, opened from the `InfraInfoBanner` tap target in Map and Auditório (see below).
 
 ### Feature Modules
 
-Only `map` and `report` have dedicated code under [src/modules/](src/modules/), reused by their route files:
+`map`, `report`, and `infra` have dedicated code under [src/modules/](src/modules/), reused by their route files:
 - `map` — `WeekGrid`, `BuscarSala` (discipline-search panel), `AllocationCard`, `gridUtils`.
 - `report` — `occupancyUtils`.
+- `infra` — `InfraInfoBanner`, the informational card showing a sala's infrastructure (cadeiras, projetor, tv, hdmi, arcondicionado, computadores) from `infra_salas`; reused by both `app/(tabs)/map.tsx` (per selected sala) and `app/(tabs)/auditorio.tsx` (hardcoded to `SALA 07`, the auditório's row in `infra_salas`). Tapping it navigates admins to `app/infra/[sala]/edit.tsx`.
 
-The other domains (`agenda`, `auditorio`, `manutencao`, `auth`, `home`, `sobre`) have no `src/modules/<domain>/` directory — all their screen logic lives directly in the route file itself (e.g. `app/(tabs)/agenda.tsx` is a single self-contained screen with its own state, search/autocomplete, and modal). Check the route file first before assuming a module directory exists for a given domain.
+The other domains (`agenda`, `manutencao`, `auth`, `home`, `sobre`) have no `src/modules/<domain>/` directory — all their screen logic lives directly in the route file itself (e.g. `app/(tabs)/agenda.tsx` is a single self-contained screen with its own state, search/autocomplete, and modal). Check the route file first before assuming a module directory exists for a given domain.
 
 ### Data Layer
 
@@ -63,6 +68,7 @@ Custom hooks in [src/hooks/](src/hooks/) wrap Supabase calls with local state an
 - `useAlocacoes` — classroom allocation CRUD + time-slot conflict detection
 - `useReservas` — auditorium reservation CRUD + conflict detection
 - `useManutencao` — maintenance ticket CRUD
+- `useInfraSala` — fetch/update a single `infra_salas` row by `sala` name (read-only for all, write requires an authenticated session per RLS)
 - `useAppUpdates` — OTA update polling via expo-updates
 - `useAuth` — login/logout wrapping AuthContext
 
@@ -78,7 +84,7 @@ NativeWind (Tailwind CSS) is configured (global stylesheet [src/global.css](src/
 
 ### Types
 
-Shared TypeScript types live in [src/types/index.ts](src/types/index.ts). Key types: `Alocacao`, `Reserva`, `Manutencao`.
+Shared TypeScript types live in [src/types/index.ts](src/types/index.ts). Key types: `Alocacao`, `Reserva`, `Manutencao`, `InfraSala`.
 
 ### Constants
 

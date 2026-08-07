@@ -3,9 +3,13 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowD
 import { router, useFocusEffect } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useReservas } from '../../src/hooks/useReservas'
+import { useInfraSala } from '../../src/hooks/useInfraSala'
 import { useAuthContext } from '../../src/contexts/AuthContext'
+import { InfraInfoBanner } from '../../src/modules/infra/InfraInfoBanner'
 import { Ionicons } from '@expo/vector-icons'
 import type { Reserva } from '../../src/types'
+
+const AUDITORIO_SALA = 'SALA 07'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
@@ -39,8 +43,13 @@ export default function AuditorioScreen() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const { reservas, loading, reload } = useReservas(ano, mes)
   const { isAdmin } = useAuthContext()
+  const { infra, loading: loadingInfra, reload: reloadInfra } = useInfraSala(AUDITORIO_SALA)
 
-  useFocusEffect(useCallback(() => { void reload() }, [reload]))
+  useFocusEffect(useCallback(() => { void reload(); void reloadInfra() }, [reload, reloadInfra]))
+
+  function handleInfraPress() {
+    router.push({ pathname: '/infra/[sala]/edit', params: { sala: AUDITORIO_SALA } } as never)
+  }
   const { width } = useWindowDimensions()
   const { bottom: bottomInset } = useSafeAreaInsets()
 
@@ -97,6 +106,16 @@ export default function AuditorioScreen() {
         </View>
         <Ionicons name="chevron-forward" size={14} color="#D97706" />
       </TouchableOpacity>
+
+      <InfraInfoBanner
+        infra={infra}
+        loading={loadingInfra}
+        isAdmin={isAdmin}
+        onPress={handleInfraPress}
+        accentColor="#D97706"
+        bgColor="#FFFBEB"
+        borderColor="#FDE68A"
+      />
 
       {/* Tabs */}
       <View style={{ flexDirection: 'row', backgroundColor: '#F3F4F6', margin: 12, borderRadius: 10, padding: 3 }}>

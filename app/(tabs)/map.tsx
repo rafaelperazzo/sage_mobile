@@ -9,6 +9,8 @@ import { useAuthContext } from '../../src/contexts/AuthContext'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import { WeekGrid } from '../../src/modules/map/WeekGrid'
 import { BuscarSala } from '../../src/modules/map/BuscarSala'
+import { InfraInfoBanner } from '../../src/modules/infra/InfraInfoBanner'
+import { useInfraSala } from '../../src/hooks/useInfraSala'
 import { getCursoColor } from '../../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
 import type { Alocacao } from '../../src/types'
@@ -32,8 +34,9 @@ export default function MapScreen() {
   const { periodo, setPeriodo, periodos } = usePeriodo()
   const { alocacoes, loading, error, reload } = useAlocacoesPorSala(selectedSala)
   const { alocacoes: todasAlocacoes, loading: loadingTodas, error: errorTodas } = useAlocacoes()
+  const { infra, loading: loadingInfra, reload: reloadInfra } = useInfraSala(selectedSala)
 
-  useFocusEffect(useCallback(() => { void reload() }, [reload]))
+  useFocusEffect(useCallback(() => { void reload(); void reloadInfra() }, [reload, reloadInfra]))
 
   function handleCellPress(alocacao: Alocacao) {
     if (isAdmin) {
@@ -45,6 +48,10 @@ export default function MapScreen() {
 
   function handleEmptyCellPress(dia: string, hora: string) {
     router.push({ pathname: '/map/create', params: { sala: selectedSala, dia, hora } } as never)
+  }
+
+  function handleInfraPress() {
+    router.push({ pathname: '/infra/[sala]/edit', params: { sala: selectedSala } } as never)
   }
 
   const currentSalaInfo = SALAS.find((s) => s.nome === selectedSala)
@@ -194,6 +201,13 @@ export default function MapScreen() {
         </View>
       ) : (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator>
+          <InfraInfoBanner
+            infra={infra}
+            loading={loadingInfra}
+            isAdmin={isAdmin}
+            onPress={handleInfraPress}
+            accentColor={color}
+          />
           <WeekGrid
             alocacoes={alocacoes}
             isAdmin={isAdmin}

@@ -3,6 +3,7 @@ import { router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuthContext } from '../../src/contexts/AuthContext'
+import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import Constants from 'expo-constants'
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name']
@@ -64,6 +65,7 @@ function ModuleCard({ item, cellWidth }: { item: Module; cellWidth: number }) {
 export default function HomeScreen() {
   const { width } = useWindowDimensions()
   const { isAdmin, signOut } = useAuthContext()
+  const { periodo } = usePeriodo()
   const cardWidth = Math.min(width - 40, 480)
 
   return (
@@ -99,10 +101,24 @@ export default function HomeScreen() {
           )}
 
           <Pressable
-            onPress={() => router.push('/sobre')}
-            style={{ marginTop: 10, paddingVertical: 6 }}
+            onPress={() => router.push('/disciplinas')}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 10,
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              backgroundColor: '#FDF2F6',
+              borderWidth: 1,
+              borderColor: '#FBCFE8',
+              borderRadius: 20,
+              opacity: pressed ? 0.8 : 1,
+            })}
           >
-            <Text style={{ fontSize: 13, color: '#9CA3AF' }}>Sobre o SAGE</Text>
+            <Ionicons name="school-outline" size={16} color="#BE185D" />
+            <Text style={{ marginLeft: 6, fontSize: 13, fontWeight: '600', color: '#BE185D' }}>
+              Lista de disciplinas{periodo ? ` ${periodo}` : ''}
+            </Text>
           </Pressable>
         </View>
         <View style={{ width: cardWidth, alignItems: 'center' }}>
@@ -132,6 +148,13 @@ export default function HomeScreen() {
             rafaelperazzo.github.io/sage
           </Text>
           <Text style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4, textAlign: 'center' }}>v{Constants.expoConfig?.version ?? Constants.nativeAppVersion}</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => router.push('/sobre')}
+          style={{ marginTop: 10, paddingVertical: 6 }}
+        >
+          <Text style={{ fontSize: 13, color: '#9CA3AF' }}>Sobre o SAGE</Text>
         </Pressable>
       </ScrollView>
 

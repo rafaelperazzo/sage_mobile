@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import * as SecureStore from 'expo-secure-store'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform } from 'react-native'
-import type { Alocacao, AlocacaoInput, Reserva, ReservaInput, Manutencao, ManutencaoInput } from '../types'
+import type { Alocacao, AlocacaoInput, Reserva, ReservaInput, Manutencao, ManutencaoInput, InfraSala, InfraSalaInput } from '../types'
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL as string
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string
@@ -228,4 +228,31 @@ export async function deleteManutencao(id: number): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+}
+
+// ── Infraestrutura das salas ────────────────────────────────────
+
+export const INFRA_SALAS_TABLE = 'infra_salas'
+
+export async function fetchInfraSala(sala: string): Promise<InfraSala | null> {
+  const { data, error } = await supabase
+    .from(INFRA_SALAS_TABLE)
+    .select('*')
+    .eq('sala', sala)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as InfraSala | null
+}
+
+export async function updateInfraSala(sala: string, input: InfraSalaInput): Promise<InfraSala> {
+  const { data, error } = await supabase
+    .from(INFRA_SALAS_TABLE)
+    .update(input)
+    .eq('sala', sala)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as InfraSala
 }

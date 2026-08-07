@@ -30,6 +30,14 @@ export default function RootLayout() {
                 options={{ title: 'Grade Curricular', headerShown: true }}
               />
               <Stack.Screen
+                name="disciplinas"
+                options={{ title: 'Disciplinas', headerShown: true }}
+              />
+              <Stack.Screen
+                name="infra/[sala]/edit"
+                options={{ title: 'Editar Infraestrutura', presentation: 'modal' }}
+              />
+              <Stack.Screen
                 name="map/create"
                 options={{ title: 'Nova Alocação', presentation: 'modal' }}
               />
