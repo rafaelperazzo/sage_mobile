@@ -24,6 +24,7 @@ const MODULES: Module[] = [
   { route: '/(tabs)/auditorio', icon: 'business-outline',  iconBg: '#FFFBEB', iconColor: '#92400E', borderColor: '#FDE68A', title: 'SAGE Auditório' },
   { route: '/(tabs)/manutencao',icon: 'construct-outline', iconBg: '#FFF7ED', iconColor: '#9A3412', borderColor: '#FED7AA', title: 'SAGE Manutenção' },
   { route: '/grade-curricular', icon: 'school-outline',   iconBg: '#FDF2F6', iconColor: '#BE185D', borderColor: '#FBCFE8', title: 'Grade Curricular' },
+  { route: '/rural',            icon: 'leaf-outline',     iconBg: '#ECFEFF', iconColor: '#0E7490', borderColor: '#A5F3FC', title: 'SAGE Rural' },
 ]
 
 function ModuleCard({ item, cellWidth }: { item: Module; cellWidth: number }) {
@@ -122,7 +123,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
         <View style={{ width: cardWidth, alignItems: 'center' }}>
-          {[0, 3].map((startIdx) => {
+          {[0, 3, 6].map((startIdx) => {
             const row = MODULES.slice(startIdx, startIdx + 3)
             const cellW = (cardWidth - 48) / 3
             return (

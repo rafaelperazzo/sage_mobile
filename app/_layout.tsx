@@ -34,6 +34,22 @@ export default function RootLayout() {
                 options={{ title: 'Disciplinas', headerShown: true }}
               />
               <Stack.Screen
+                name="rural"
+                options={{ title: 'SAGE Rural', headerShown: true }}
+              />
+              <Stack.Screen
+                name="rural/create"
+                options={{ title: 'Nova Alocação Rural', presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="rural/[id]/edit"
+                options={{ title: 'Editar Alocação Rural', presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="rural/[id]/view"
+                options={{ title: 'Alocação Rural', presentation: 'modal' }}
+              />
+              <Stack.Screen
                 name="infra/[sala]/edit"
                 options={{ title: 'Editar Infraestrutura', presentation: 'modal' }}
               />

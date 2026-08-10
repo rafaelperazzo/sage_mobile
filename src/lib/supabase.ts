@@ -256,3 +256,118 @@ export async function updateInfraSala(sala: string, input: InfraSalaInput): Prom
   if (error) throw error
   return data as InfraSala
 }
+
+// ── SAGE Rural (tabela externas) ─────────────────────────────────
+
+export const RURAL_TABLE_NAME = 'externas'
+
+export async function fetchPeriodosExternas(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .select('periodo')
+
+  if (error) throw error
+
+  const periodos = Array.from(
+    new Set((data as { periodo: string }[]).map((r) => r.periodo).filter(Boolean))
+  ).sort()
+
+  return periodos
+}
+
+export async function fetchSalasExternas(periodo: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .select('sala')
+    .eq('periodo', periodo)
+
+  if (error) throw error
+
+  const salas = Array.from(
+    new Set((data as { sala: string }[]).map((r) => r.sala).filter(Boolean))
+  ).sort()
+
+  return salas
+}
+
+export async function fetchAlocacoesExternas(periodo: string): Promise<Alocacao[]> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .select('*')
+    .eq('periodo', periodo)
+    .order('dia_semana')
+    .order('inicio')
+
+  if (error) throw error
+  return data as Alocacao[]
+}
+
+export async function fetchAlocacoesExternasPorSala(sala: string, periodo: string): Promise<Alocacao[]> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .select('*')
+    .eq('sala', sala)
+    .eq('periodo', periodo)
+    .order('dia_semana')
+    .order('inicio')
+
+  if (error) throw error
+  return data as Alocacao[]
+}
+
+export async function fetchAlocacaoExternaById(id: number): Promise<Alocacao | null> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as Alocacao | null
+}
+
+export async function insertAlocacaoExterna(input: AlocacaoInput, periodo: string): Promise<Alocacao> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .insert({ ...input, periodo })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as Alocacao
+}
+
+export async function updateAlocacaoExterna(id: number, input: AlocacaoInput): Promise<Alocacao> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .update(input)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as Alocacao
+}
+
+export async function deleteAlocacaoExterna(id: number): Promise<void> {
+  const { error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+// ── Permissões por módulo (admin_roles) ──────────────────────────
+
+export const ADMIN_ROLES_TABLE = 'admin_roles'
+
+export async function fetchAdminRoles(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from(ADMIN_ROLES_TABLE)
+    .select('module')
+    .eq('user_id', userId)
+
+  if (error) throw error
+  return (data as { module: string }[]).map((r) => r.module)
+}
