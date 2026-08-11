@@ -57,6 +57,7 @@ O **SAGE Mobile** é a solução definitiva para a gestão de infraestrutura aca
 - 📊 **Relatório de Ocupação:** Métricas de uso por sala e tipo de espaço, filtráveis por período letivo.
 - 📚 **Grade Curricular:** Visualização da grade por curso e semestre, com detecção de horários sobrepostos.
 - 🎓 **Lista de Disciplinas:** Todas as disciplinas ofertadas no período, ordenadas por nome, com professor, curso, semestre, dia, horário e sala.
+- 🌾 **SAGE Rural:** Alocações de salas externas (campus rural/DEFIS), com CRUD próprio e filtro por período.
 - 🎭 **Reservas de Auditório:** Sistema completo de agendamento com detecção de conflitos.
 - 🛠️ **Gestão de Manutenção:** Abertura de tickets com status em tempo real.
 - 🔄 **Atualizações Instantâneas:** Receba melhorias sem precisar atualizar pela loja (OTA).

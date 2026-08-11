@@ -47,3 +47,21 @@ the admin-edit feature, `isAdmin` (`user !== null`) was sufficient.
   `BEP`, `BG`, `BSI`, `BZ`, `DC`, `DCC`, `LC`, `LEF`, `LF`, `LQ` all appear. Any future
   "exclude/filter by curso" request should double-check the exact code against a live
   `select distinct curso from "alocacao_2026.1"` rather than assuming.
+
+## 2026-08-11 — PostgREST 1000-row cap hiding rows in `externas` (SAGE Rural)
+
+**Context:** newly-inserted `DEFIS - SALA *` rows weren't showing up in the SAGE Rural sala
+select. Root cause: PostgREST (Supabase's REST layer) caps every response at 1000 rows by
+default, and `externas` had grown to 1034 rows for period `2026.2` — the DEFIS rows, added
+last, fell past the cutoff on any unpaginated `.select()`.
+
+**Fix:** added `fetchAllPages()` in [src/lib/supabase.ts](src/lib/supabase.ts) — a generic
+helper that loops `.range(from, to)` in pages of 1000 until a short page signals the end.
+Applied to all three `externas`-wide reads: `fetchPeriodosExternas`, `fetchSalasExternas`,
+`fetchAlocacoesExternas`. `fetchAlocacoesExternasPorSala` (filtered by `sala` + `periodo`)
+was left as a single `.select()` since a single room/period slice is nowhere near 1000 rows.
+
+**Gotcha for next time:** any other `.select()` against a table without `.range()`/`.limit()`
+is silently capped at 1000 rows — this bug will recur elsewhere as other tables grow past
+that size. `alocacao_2026.1` and `infra_salas` are far below it today but worth checking
+first if a similar "some rows missing" report comes in for those.
