@@ -261,45 +261,62 @@ export async function updateInfraSala(sala: string, input: InfraSalaInput): Prom
 
 export const RURAL_TABLE_NAME = 'externas'
 
+// PostgREST limita cada resposta a 1000 linhas por padrão; a tabela `externas`
+// já ultrapassa isso, então paginamos com .range() até esgotar os resultados.
+const POSTGREST_PAGE_SIZE = 1000
+
+async function fetchAllPages<T>(
+  buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>
+): Promise<T[]> {
+  const results: T[] = []
+  let from = 0
+
+  while (true) {
+    const { data, error } = await buildQuery(from, from + POSTGREST_PAGE_SIZE - 1)
+    if (error) throw error
+
+    const page = (data ?? []) as T[]
+    results.push(...page)
+
+    if (page.length < POSTGREST_PAGE_SIZE) break
+    from += POSTGREST_PAGE_SIZE
+  }
+
+  return results
+}
+
 export async function fetchPeriodosExternas(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from(RURAL_TABLE_NAME)
-    .select('periodo')
+  const data = await fetchAllPages<{ periodo: string }>((from, to) =>
+    supabase.from(RURAL_TABLE_NAME).select('periodo').range(from, to)
+  )
 
-  if (error) throw error
-
-  const periodos = Array.from(
-    new Set((data as { periodo: string }[]).map((r) => r.periodo).filter(Boolean))
-  ).sort()
+  const periodos = Array.from(new Set(data.map((r) => r.periodo).filter(Boolean))).sort()
 
   return periodos
 }
 
 export async function fetchSalasExternas(periodo: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from(RURAL_TABLE_NAME)
-    .select('sala')
-    .eq('periodo', periodo)
+  const data = await fetchAllPages<{ sala: string }>((from, to) =>
+    supabase.from(RURAL_TABLE_NAME).select('sala').eq('periodo', periodo).range(from, to)
+  )
 
-  if (error) throw error
-
-  const salas = Array.from(
-    new Set((data as { sala: string }[]).map((r) => r.sala).filter(Boolean))
-  ).sort()
+  const salas = Array.from(new Set(data.map((r) => r.sala).filter(Boolean))).sort()
 
   return salas
 }
 
 export async function fetchAlocacoesExternas(periodo: string): Promise<Alocacao[]> {
-  const { data, error } = await supabase
-    .from(RURAL_TABLE_NAME)
-    .select('*')
-    .eq('periodo', periodo)
-    .order('dia_semana')
-    .order('inicio')
+  const data = await fetchAllPages<Alocacao>((from, to) =>
+    supabase
+      .from(RURAL_TABLE_NAME)
+      .select('*')
+      .eq('periodo', periodo)
+      .order('dia_semana')
+      .order('inicio')
+      .range(from, to)
+  )
 
-  if (error) throw error
-  return data as Alocacao[]
+  return data
 }
 
 export async function fetchAlocacoesExternasPorSala(sala: string, periodo: string): Promise<Alocacao[]> {
