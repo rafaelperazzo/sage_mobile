@@ -34,6 +34,10 @@ export default function RootLayout() {
                 options={{ title: 'Disciplinas', headerShown: true }}
               />
               <Stack.Screen
+                name="salas-livres"
+                options={{ title: 'Salas Livres Agora', headerShown: true }}
+              />
+              <Stack.Screen
                 name="rural"
                 options={{ title: 'SAGE Rural', headerShown: true }}
               />

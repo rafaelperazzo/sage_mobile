@@ -32,6 +32,16 @@ export const HORAS: string[] = Array.from({ length: 15 }, (_, i) =>
   `${String(7 + i).padStart(2, '0')}:00`
 )
 
+// Opções de horário para os seletores de início/fim de aula (07:00 a 22:00, passo de 10min).
+// O passo de 10min cobre tanto o padrão histórico (início na hora cheia) quanto o padrão
+// noturno vigente (início às 18:30, aulas de 50min) sem precisar hardcodar um dos dois.
+export const TIME_PICKER_OPTIONS: string[] = Array.from({ length: (22 - 7) * 6 + 1 }, (_, i) => {
+  const totalMin = 7 * 60 + i * 10
+  const h = Math.floor(totalMin / 60)
+  const m = totalMin % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+})
+
 export const TIPO_LABEL: Record<TipoSala, string> = {
   sala_aula: 'Sala de Aula',
   sala_inovacao: 'Sala de Inovação',

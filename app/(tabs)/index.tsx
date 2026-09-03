@@ -121,6 +121,27 @@ export default function HomeScreen() {
               Lista de disciplinas{periodo ? ` ${periodo}` : ''}
             </Text>
           </Pressable>
+
+          <Pressable
+            onPress={() => router.push('/salas-livres')}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 10,
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              backgroundColor: '#F0FDF4',
+              borderWidth: 1,
+              borderColor: '#BBF7D0',
+              borderRadius: 20,
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            <Ionicons name="checkmark-circle-outline" size={16} color="#15803D" />
+            <Text style={{ marginLeft: 6, fontSize: 13, fontWeight: '600', color: '#15803D' }}>
+              Salas livres agora
+            </Text>
+          </Pressable>
         </View>
         <View style={{ width: cardWidth, alignItems: 'center' }}>
           {[0, 3, 6].map((startIdx) => {

@@ -3,7 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator 
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Picker } from '@react-native-picker/picker'
-import { SALAS, DIAS, HORAS } from '../../src/constants/salas'
+import { SALAS, DIAS, TIME_PICKER_OPTIONS } from '../../src/constants/salas'
+import { timeToMinutes } from '../../src/modules/map/gridUtils'
 import { useAlocacoesPorSala } from '../../src/hooks/useAlocacoes'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import type { AlocacaoInput } from '../../src/types'
@@ -22,8 +23,10 @@ export default function MapCreateScreen() {
   const [dia, setDia] = useState(params.dia ?? DIAS[0]!)
   const [inicio, setInicio] = useState(params.hora ?? '07:00')
   const [fim, setFim] = useState(() => {
-    const h = parseInt(params.hora ?? '07:00')
-    return `${String(h + 2).padStart(2, '0')}:00`
+    const totalMin = timeToMinutes(params.hora ?? '07:00') + 120
+    const h = Math.floor(totalMin / 60)
+    const m = totalMin % 60
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -53,8 +56,6 @@ export default function MapCreateScreen() {
       setSaving(false)
     }
   }
-
-  const HORAS_FIM = [...HORAS.slice(1), '22:00']
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['bottom']}>
@@ -107,7 +108,7 @@ export default function MapCreateScreen() {
           <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 4 }}>Início *</Text>
           <View style={{ borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
             <Picker selectedValue={inicio} onValueChange={setInicio} style={{ color: '#111827' }}>
-              {HORAS.map((h) => <Picker.Item key={h} label={h} value={h} />)}
+              {TIME_PICKER_OPTIONS.map((h) => <Picker.Item key={h} label={h} value={h} />)}
             </Picker>
           </View>
         </View>
@@ -115,7 +116,7 @@ export default function MapCreateScreen() {
           <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 4 }}>Fim *</Text>
           <View style={{ borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
             <Picker selectedValue={fim} onValueChange={setFim} style={{ color: '#111827' }}>
-              {HORAS_FIM.map((h) => <Picker.Item key={h} label={h} value={h} />)}
+              {TIME_PICKER_OPTIONS.map((h) => <Picker.Item key={h} label={h} value={h} />)}
             </Picker>
           </View>
         </View>

@@ -14,15 +14,26 @@ const FIRST_HOUR = 7 // 07:00
 // Sage Map exibe apenas dias úteis (segunda a sexta) na grid
 const DIAS_UTEIS = DIAS.filter((d) => d !== 'SÁBADO')
 
-// Pares de horas candidatos a formar um bloco livre de 2h (ancorados, quando ambos livres)
+// Pares de horas candidatos a formar um bloco livre de 2h (ancorados, quando ambos livres).
+// Cobre só o período diurno — o noturno usa cálculo exato de frestas (nightFreeGaps),
+// já que as aulas de lá não começam/terminam em hora cheia.
 const BLOCOS_LIVRE_2H: [string, string][] = [
   ['08:00', '09:00'],
   ['10:00', '11:00'],
   ['14:00', '15:00'],
   ['16:00', '17:00'],
-  ['18:00', '19:00'],
-  ['20:00', '21:00'],
 ]
+
+// Janela noturna considerada para o cálculo exato de horários livres
+const NIGHT_START_MIN = 18 * 60 + 30 // 18:30
+const NIGHT_END_MIN = 21 * 60 + 50   // 21:50
+const MIN_GAP_MIN = 10 // ignora frestas menores que isso — pouco úteis para alocar aula
+
+function minutesToTime(mins: number): string {
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
 
 // Mapeia Date.getDay() (0=domingo) para o rótulo de dia usado em DIAS
 const DIA_POR_GETDAY: Record<number, string | undefined> = {
@@ -78,6 +89,28 @@ export function WeekGrid({ alocacoes, isAdmin, onCellPress, onEmptyCellPress }: 
       const e = timeToMinutes(a.fim)
       return s < hMin + 60 && e > hMin
     })
+  }
+
+  // Frestas livres reais dentro da janela noturna (18:30–21:50), calculadas a partir dos
+  // horários exatos das alocações — não aproxima por hora cheia como o restante do dia.
+  function nightFreeGaps(dia: string): { start: number; end: number }[] {
+    const ocupados = (byDia[dia] ?? [])
+      .map((a) => ({
+        start: Math.max(timeToMinutes(a.inicio), NIGHT_START_MIN),
+        end: Math.min(timeToMinutes(a.fim), NIGHT_END_MIN),
+      }))
+      .filter((i) => i.start < i.end)
+      .sort((a, b) => a.start - b.start)
+
+    const gaps: { start: number; end: number }[] = []
+    let cursor = NIGHT_START_MIN
+    for (const { start, end } of ocupados) {
+      if (start > cursor) gaps.push({ start: cursor, end: start })
+      cursor = Math.max(cursor, end)
+    }
+    if (cursor < NIGHT_END_MIN) gaps.push({ start: cursor, end: NIGHT_END_MIN })
+
+    return gaps.filter((g) => g.end - g.start >= MIN_GAP_MIN)
   }
 
   const totalH = totalGridH + HEADER_H
@@ -206,6 +239,18 @@ export function WeekGrid({ alocacoes, isAdmin, onCellPress, onEmptyCellPress }: 
               }
               return slots
             })}
+
+            {/* Slots livres noturnos — calculados por fresta exata dentro de 18:30–21:50 */}
+            {nightFreeGaps(dia).map((gap) => (
+              <FreeSlot
+                key={`${dia}-night-${gap.start}`}
+                top={(gap.start / 60 - FIRST_HOUR) * ROW_HEIGHT}
+                height={((gap.end - gap.start) / 60) * ROW_HEIGHT - 2}
+                label={`${minutesToTime(gap.start)}-${minutesToTime(gap.end)}`}
+                isAdmin={isAdmin}
+                onPress={() => onEmptyCellPress(dia, minutesToTime(gap.start))}
+              />
+            ))}
 
             {/* Blocos de alocação — absolute, altura proporcional */}
             {byDia[dia]?.map((alocacao) => {

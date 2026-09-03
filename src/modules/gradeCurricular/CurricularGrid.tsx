@@ -40,13 +40,15 @@ function offsetForMinutes(mins: number, horasVisiveis: string[]): number {
 export function CurricularGrid({ alocacoes, onCellPress }: CurricularGridProps) {
   const scrollRef = useRef<ScrollView>(null)
 
-  // Apenas horários com pelo menos uma alocação são exibidos
+  // Apenas horários com pelo menos uma alocação são exibidos.
+  // Marca a partir da hora cheia (não de `inicioMin`) para não pular a hora em que
+  // uma aula termina — necessário para aulas com duração != 60min (ex.: 50min à noite).
   const horasOcupadas = new Set<string>()
   for (const a of alocacoes) {
     const inicioMin = timeToMinutes(a.inicio)
     const fimMin = timeToMinutes(a.fim)
-    for (let m = inicioMin; m < fimMin; m += 60) {
-      horasOcupadas.add(`${String(Math.floor(m / 60)).padStart(2, '0')}:00`)
+    for (let h = Math.floor(inicioMin / 60) * 60; h < fimMin; h += 60) {
+      horasOcupadas.add(`${String(Math.floor(h / 60)).padStart(2, '0')}:00`)
     }
   }
   const horasVisiveis = HORAS.filter((h) => horasOcupadas.has(h))

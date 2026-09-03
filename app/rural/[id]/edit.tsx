@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator,
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Picker } from '@react-native-picker/picker'
-import { DIAS, HORAS } from '../../../src/constants/salas'
+import { DIAS, TIME_PICKER_OPTIONS } from '../../../src/constants/salas'
 import { useAlocacoesExternasPorSala } from '../../../src/hooks/useAlocacoesExternas'
 import { usePeriodoExterna } from '../../../src/hooks/usePeriodoExterna'
 import { useModulePermission } from '../../../src/hooks/useModulePermission'
@@ -98,8 +98,6 @@ export default function RuralEditScreen() {
     )
   }
 
-  const HORAS_FIM = [...HORAS.slice(1), '22:00']
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['bottom']}>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
@@ -150,7 +148,7 @@ export default function RuralEditScreen() {
           <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 4 }}>Início *</Text>
           <View style={{ borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
             <Picker selectedValue={inicio} onValueChange={setInicio} style={{ color: '#111827' }}>
-              {HORAS.map((h) => <Picker.Item key={h} label={h} value={h} />)}
+              {TIME_PICKER_OPTIONS.map((h) => <Picker.Item key={h} label={h} value={h} />)}
             </Picker>
           </View>
         </View>
@@ -158,7 +156,7 @@ export default function RuralEditScreen() {
           <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 4 }}>Fim *</Text>
           <View style={{ borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
             <Picker selectedValue={fim} onValueChange={setFim} style={{ color: '#111827' }}>
-              {HORAS_FIM.map((h) => <Picker.Item key={h} label={h} value={h} />)}
+              {TIME_PICKER_OPTIONS.map((h) => <Picker.Item key={h} label={h} value={h} />)}
             </Picker>
           </View>
         </View>
