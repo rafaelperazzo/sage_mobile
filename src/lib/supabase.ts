@@ -230,6 +230,19 @@ export async function deleteManutencao(id: number): Promise<void> {
   if (error) throw error
 }
 
+export async function fetchManutencoesAbertasPorSala(sala: string): Promise<Manutencao[]> {
+  if (!sala) return []
+  const { data, error } = await supabase
+    .from(MANUTENCAO_TABLE)
+    .select('*')
+    .ilike('sala_local', sala)
+    .in('status', ['Aberto', 'Em andamento'])
+    .order('data_abertura', { ascending: false })
+
+  if (error) throw error
+  return data as Manutencao[]
+}
+
 // ── Infraestrutura das salas ────────────────────────────────────
 
 export const INFRA_SALAS_TABLE = 'infra_salas'

@@ -10,7 +10,9 @@ import { useModulePermission } from '../src/hooks/useModulePermission'
 import { WeekGrid } from '../src/modules/map/WeekGrid'
 import { BuscarSala } from '../src/modules/map/BuscarSala'
 import { InfraInfoBanner } from '../src/modules/infra/InfraInfoBanner'
+import { ManutencaoAbertaBanner } from '../src/modules/infra/ManutencaoAbertaBanner'
 import { useInfraSala } from '../src/hooks/useInfraSala'
+import { useManutencaoAberta } from '../src/hooks/useManutencaoAberta'
 import { getCursoColor } from '../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
 import type { Alocacao } from '../src/types'
@@ -27,12 +29,13 @@ export default function RuralScreen() {
   const { alocacoes, loading, error, reload } = useAlocacoesExternasPorSala(selectedSala, periodo)
   const { alocacoes: todasAlocacoes, loading: loadingTodas, error: errorTodas } = useAlocacoesExternas(periodo)
   const { infra, loading: loadingInfra, reload: reloadInfra } = useInfraSala(selectedSala)
+  const { manutencoes: manutencoesAbertas, loading: loadingManutencao, reload: reloadManutencao } = useManutencaoAberta(selectedSala)
 
   useEffect(() => {
     if (!selectedSala && salas.length > 0) setSelectedSala(salas[0]!)
   }, [salas, selectedSala])
 
-  useFocusEffect(useCallback(() => { void reload(); void reloadInfra() }, [reload, reloadInfra]))
+  useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao() }, [reload, reloadInfra, reloadManutencao]))
 
   function handleCellPress(alocacao: Alocacao) {
     if (hasAccess) {
@@ -187,6 +190,7 @@ export default function RuralScreen() {
             isAdmin={false}
             accentColor={ACCENT_COLOR}
           />
+          <ManutencaoAbertaBanner manutencoes={manutencoesAbertas} loading={loadingManutencao} />
           <WeekGrid
             alocacoes={alocacoes}
             isAdmin={hasAccess}

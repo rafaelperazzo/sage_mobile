@@ -10,7 +10,9 @@ import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import { WeekGrid } from '../../src/modules/map/WeekGrid'
 import { BuscarSala } from '../../src/modules/map/BuscarSala'
 import { InfraInfoBanner } from '../../src/modules/infra/InfraInfoBanner'
+import { ManutencaoAbertaBanner } from '../../src/modules/infra/ManutencaoAbertaBanner'
 import { useInfraSala } from '../../src/hooks/useInfraSala'
+import { useManutencaoAberta } from '../../src/hooks/useManutencaoAberta'
 import { getCursoColor } from '../../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
 import type { Alocacao } from '../../src/types'
@@ -35,8 +37,9 @@ export default function MapScreen() {
   const { alocacoes, loading, error, reload } = useAlocacoesPorSala(selectedSala)
   const { alocacoes: todasAlocacoes, loading: loadingTodas, error: errorTodas } = useAlocacoes()
   const { infra, loading: loadingInfra, reload: reloadInfra } = useInfraSala(selectedSala)
+  const { manutencoes: manutencoesAbertas, loading: loadingManutencao, reload: reloadManutencao } = useManutencaoAberta(selectedSala)
 
-  useFocusEffect(useCallback(() => { void reload(); void reloadInfra() }, [reload, reloadInfra]))
+  useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao() }, [reload, reloadInfra, reloadManutencao]))
 
   function handleCellPress(alocacao: Alocacao) {
     if (isAdmin) {
@@ -208,6 +211,7 @@ export default function MapScreen() {
             onPress={handleInfraPress}
             accentColor={color}
           />
+          <ManutencaoAbertaBanner manutencoes={manutencoesAbertas} loading={loadingManutencao} />
           <WeekGrid
             alocacoes={alocacoes}
             isAdmin={isAdmin}
