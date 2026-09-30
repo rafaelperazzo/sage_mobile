@@ -15,9 +15,6 @@ name: "01 - Home Tab"
 # Botão de login (modo público — sem autenticação)
 - assertVisible:
     text: "Entrar como administrador"
-# Link para o Sobre
-- assertVisible:
-    text: "Sobre o SAGE"
 # Cards de módulos
 - assertVisible:
     text: "SAGE Map"
@@ -30,4 +27,11 @@ name: "01 - Home Tab"
 - assertVisible:
     text: "SAGE Manutenção"
 - takeScreenshot: screenshots/01_home_tab
+# Link para o Sobre — fica no rodapé da tela rolável e, em telas menores (ex.: Pixel 6
+# API 31 do CI, com barra de navegação de 3 botões), fica abaixo da dobra: rola até ele.
+- scrollUntilVisible:
+    element:
+      text: "Sobre o SAGE"
+    direction: DOWN
+    timeout: 10000
 - stopApp

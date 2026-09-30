@@ -6,9 +6,13 @@ name: "09 - Sobre Screen"
 - waitForAnimationToEnd:
     timeout: 16000
 
-# Garante que está na Home
-- assertVisible:
-    text: "Sobre o SAGE"
+# Garante que está na Home e rola até o link do Sobre — ele fica no rodapé da tela
+# rolável e, em telas menores (ex.: Pixel 6 API 31 do CI), fica abaixo da dobra.
+- scrollUntilVisible:
+    element:
+      text: "Sobre o SAGE"
+    direction: DOWN
+    timeout: 10000
 
 # Navega para a tela Sobre
 - tapOn:
@@ -27,9 +31,12 @@ name: "09 - Sobre Screen"
 - waitForAnimationToEnd:
     timeout: 10000
 
-# Confirma retorno à Home
-- assertVisible:
-    text: "SAGE"
+# Confirma retorno à Home — a Home mantém a rolagem de antes, então volta ao topo
+- scrollUntilVisible:
+    element:
+      text: "SAGE"
+    direction: UP
+    timeout: 10000
 - assertVisible:
     text: "Sistema de Alocação e Gestão de Espaços"
 
