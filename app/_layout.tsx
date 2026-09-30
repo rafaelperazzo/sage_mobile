@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from '../src/contexts/AuthContext'
 import { PeriodoProvider } from '../src/contexts/PeriodoContext'
+import { PeriodoExternaProvider } from '../src/contexts/PeriodoExternaContext'
 import { useAppUpdates } from '../src/hooks/useAppUpdates'
 
 export default function RootLayout() {
@@ -15,6 +16,7 @@ export default function RootLayout() {
         <StatusBar style="dark" />
         <AuthProvider>
           <PeriodoProvider>
+          <PeriodoExternaProvider>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
@@ -52,6 +54,14 @@ export default function RootLayout() {
               <Stack.Screen
                 name="rural/[id]/view"
                 options={{ title: 'Alocação Rural', presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="reservas/create"
+                options={{ title: 'Nova Reserva', presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="reservas/[id]/edit"
+                options={{ title: 'Editar Reserva', presentation: 'modal' }}
               />
               <Stack.Screen
                 name="infra/[sala]/edit"
@@ -94,6 +104,7 @@ export default function RootLayout() {
                 options={{ title: 'Chamado', presentation: 'modal' }}
               />
             </Stack>
+          </PeriodoExternaProvider>
           </PeriodoProvider>
         </AuthProvider>
       </SafeAreaProvider>

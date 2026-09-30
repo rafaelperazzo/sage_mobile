@@ -1,11 +1,16 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAlocacoes } from '../../src/hooks/useAlocacoes'
+import { useAlocacoesExternas } from '../../src/hooks/useAlocacoesExternas'
+import { useSalasExternas } from '../../src/hooks/useSalasExternas'
+import { usePeriodoExterna } from '../../src/hooks/usePeriodoExterna'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
-import { calcularOcupacao } from '../../src/modules/report/occupancyUtils'
-import { CartesianChart, Bar } from 'victory-native'
+import { SALAS } from '../../src/constants/salas'
+import { predioDaSala, ordenarSalas } from '../../src/lib/predio'
+import { calcularOcupacao, mediaPorGrupo } from '../../src/modules/report/occupancyUtils'
+import { ReportView } from '../../src/modules/report/ReportView'
 
 const TIPO_COLOR: Record<string, string> = {
   sala_aula: '#3B82F6',
@@ -19,158 +24,142 @@ const TIPO_LABEL: Record<string, string> = {
   laboratorio: 'Laboratório',
 }
 
-function OccupancyBar({ percentual, tipo }: { percentual: number; tipo: string }) {
-  const color = TIPO_COLOR[tipo] ?? '#6B7280'
+const RURAL_COLOR = '#0E7490'
+const RURAL_BG = '#ECFEFF'
+const TODOS = 'Todos'
+const SEM_PREDIO = 'Outras'
+
+type Modulo = 'map' | 'rural'
+
+function Pilula({ label, ativo, cor, bg, onPress }: { label: string; ativo: boolean; cor: string; bg: string; onPress: () => void }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <View style={{ flex: 1, height: 8, backgroundColor: '#F3F4F6', borderRadius: 4, overflow: 'hidden' }}>
-        <View style={{ width: `${Math.min(percentual, 100)}%` as `${number}%`, height: 8, backgroundColor: color, borderRadius: 4 }} />
-      </View>
-      <Text style={{ fontSize: 11, fontWeight: '700', color, width: 36, textAlign: 'right' }}>{percentual}%</Text>
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: ativo ? bg : '#F9FAFB',
+        borderWidth: 1.5,
+        borderColor: ativo ? cor : '#E5E7EB',
+      }}
+    >
+      <Text style={{ fontSize: 12, fontWeight: ativo ? '700' : '500', color: ativo ? cor : '#6B7280' }}>{label}</Text>
+    </TouchableOpacity>
+  )
+}
+
+function PeriodoPicker({ periodo, periodos, onChange }: { periodo: string; periodos: string[]; onChange: (p: string) => void }) {
+  if (periodos.length <= 1) return null
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}>
+      <Picker selectedValue={periodo} onValueChange={onChange} style={{ flex: 1, color: '#374151' }} dropdownIconColor="#9CA3AF">
+        {periodos.map((p) => (
+          <Picker.Item key={p} label={p} value={p} />
+        ))}
+      </Picker>
     </View>
   )
 }
 
-export default function ReportScreen() {
+function Carregando() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <ActivityIndicator size="large" color="#10B981" />
+      <Text style={{ color: '#9CA3AF', marginTop: 8 }}>Calculando ocupação...</Text>
+    </View>
+  )
+}
+
+// ── SAGE Map: salas fixas do DC, cor por tipo de sala ─────────────
+function ReportMap() {
   const { alocacoes, loading } = useAlocacoes()
   const { periodo, setPeriodo, periodos } = usePeriodo()
-  const { width } = useWindowDimensions()
-  const [selectedSala, setSelectedSala] = useState<string | null>(null)
 
-  if (loading) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }} edges={['left', 'right', 'bottom']}>
-        <ActivityIndicator size="large" color="#10B981" />
-        <Text style={{ color: '#9CA3AF', marginTop: 8 }}>Calculando ocupação...</Text>
-      </SafeAreaView>
-    )
-  }
+  if (loading) return <Carregando />
 
-  const { salas, totalGeralHoras, mediaOcupacao } = calcularOcupacao(alocacoes)
-
-  // Dados para o gráfico (labels abreviadas)
-  const chartData = salas.map((s) => ({
+  const summary = calcularOcupacao(alocacoes, SALAS.map((s) => ({ nome: s.nome, grupo: s.tipo })))
+  const chartData = summary.salas.map((s) => ({
     label: s.sala.replace('LAB CEAGRI I - ', 'CEA-').replace('SALA ', 'S').replace('LAB ', 'L'),
     percentual: s.percentual,
-    tipo: s.tipo,
-    sala: s.sala,
+    color: TIPO_COLOR[s.grupo] ?? '#6B7280',
   }))
 
-  const selected = selectedSala ? salas.find((s) => s.sala === selectedSala) : null
+  return (
+    <>
+      <PeriodoPicker periodo={periodo} periodos={periodos} onChange={setPeriodo} />
+      <ReportView
+        summary={summary}
+        totalAlocacoes={alocacoes.length}
+        chartData={chartData}
+        corDaSala={(s) => TIPO_COLOR[s.grupo] ?? '#6B7280'}
+        legenda={Object.entries(TIPO_COLOR).map(([tipo, color]) => ({ label: TIPO_LABEL[tipo]!, color }))}
+      />
+    </>
+  )
+}
+
+// ── SAGE Rural: salas da tabela `externas`, filtradas por prédio ──
+function ReportRural() {
+  const { periodo, setPeriodo, periodos } = usePeriodoExterna()
+  const { salas, loading: loadingSalas } = useSalasExternas(periodo)
+  const { alocacoes, loading } = useAlocacoesExternas(periodo)
+  const [predio, setPredio] = useState(TODOS)
+
+  if (!periodo || loading || loadingSalas) return <Carregando />
+
+  const salasRelatorio = ordenarSalas(salas)
+    .map((nome) => ({ nome, grupo: predioDaSala(nome) ?? SEM_PREDIO }))
+    .sort((a, b) => a.grupo.localeCompare(b.grupo, 'pt-BR', { numeric: true }))
+  const predios = Array.from(new Set(salasRelatorio.map((s) => s.grupo)))
+  const visiveis = predio === TODOS ? salasRelatorio : salasRelatorio.filter((s) => s.grupo === predio)
+  const nomesVisiveis = new Set(visiveis.map((s) => s.nome))
+
+  const summary = calcularOcupacao(alocacoes, visiveis)
+  // "Todos": uma barra por prédio (média); prédio escolhido: uma barra por sala
+  const chartData = predio === TODOS
+    ? mediaPorGrupo(summary.salas).map((g) => ({ label: g.grupo, percentual: g.percentual, color: RURAL_COLOR }))
+    : summary.salas.map((s) => ({
+        label: s.sala.slice(s.grupo.length).replace(/^\s*-\s*/, '').replace('SALA ', 'S'),
+        percentual: s.percentual,
+        color: RURAL_COLOR,
+      }))
+
+  const filtroPredios = (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, gap: 6 }}>
+      {[TODOS, ...predios].map((p) => (
+        <Pilula key={p} label={p} ativo={predio === p} cor={RURAL_COLOR} bg={RURAL_BG} onPress={() => setPredio(p)} />
+      ))}
+    </ScrollView>
+  )
+
+  return (
+    <>
+      <PeriodoPicker periodo={periodo} periodos={periodos} onChange={setPeriodo} />
+      <ReportView
+        key={predio}
+        summary={summary}
+        totalAlocacoes={alocacoes.filter((a) => nomesVisiveis.has(a.sala)).length}
+        chartData={chartData}
+        corDaSala={() => RURAL_COLOR}
+        agruparPorGrupo={predio === TODOS}
+        header={filtroPredios}
+      />
+    </>
+  )
+}
+
+export default function ReportScreen() {
+  const [modulo, setModulo] = useState<Modulo>('map')
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['left', 'right', 'bottom']}>
-      {periodos.length > 1 && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}>
-          <Picker
-            selectedValue={periodo}
-            onValueChange={setPeriodo}
-            style={{ flex: 1, color: '#374151' }}
-            dropdownIconColor="#9CA3AF"
-          >
-            {periodos.map((p) => (
-              <Picker.Item key={p} label={p} value={p} />
-            ))}
-          </Picker>
-        </View>
-      )}
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        {/* Resumo */}
-        <View style={{ flexDirection: 'row', gap: 10, padding: 16 }}>
-          {[
-            { label: 'Alocações', value: alocacoes.length },
-            { label: 'Horas Totais', value: `${totalGeralHoras.toFixed(0)}h` },
-            { label: 'Média Ocupação', value: `${mediaOcupacao}%` },
-          ].map((stat) => (
-            <View key={stat.label} style={{ flex: 1, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#059669' }}>{stat.value}</Text>
-              <Text style={{ fontSize: 10, color: '#065F46', marginTop: 2, textAlign: 'center' }}>{stat.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Legenda */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: 16, marginBottom: 8 }}>
-          {Object.entries(TIPO_COLOR).map(([tipo, color]) => (
-            <View key={tipo} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: color }} />
-              <Text style={{ fontSize: 10, color: '#6B7280' }}>{TIPO_LABEL[tipo]}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Gráfico de barras com CartesianChart */}
-        <View style={{ height: 240, marginHorizontal: 8 }}>
-          <CartesianChart
-            data={chartData}
-            xKey="label"
-            yKeys={['percentual']}
-            domain={{ y: [0, 100] }}
-            domainPadding={{ left: 10, right: 10 }}
-            axisOptions={{
-              tickCount: 5,
-              formatYLabel: (v) => `${v}%`,
-              formatXLabel: (v) => String(v),
-              labelColor: '#9CA3AF',
-              lineColor: '#F3F4F6',
-            }}
-          >
-            {({ points, chartBounds }) =>
-              points.percentual.map((point, i) => (
-                <Bar
-                  key={i}
-                  points={[point]}
-                  chartBounds={chartBounds}
-                  color={TIPO_COLOR[chartData[i]?.tipo ?? 'sala_aula'] ?? '#6B7280'}
-                  roundedCorners={{ topLeft: 3, topRight: 3 }}
-                />
-              ))
-            }
-          </CartesianChart>
-        </View>
-
-        {/* Detalhe da sala selecionada */}
-        {selected && (
-          <View style={{ marginHorizontal: 16, marginBottom: 16, backgroundColor: '#F9FAFB', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E5E7EB' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827' }}>{selected.sala}</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280' }}>{selected.totalHoras.toFixed(1)}h / semana</Text>
-            </View>
-            {Object.entries(selected.porDia).map(([dia, horas]) => (
-              <View key={dia} style={{ marginBottom: 8 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-                  <Text style={{ fontSize: 11, color: '#374151', fontWeight: '600' }}>{dia}</Text>
-                  <Text style={{ fontSize: 11, color: '#6B7280' }}>{horas.toFixed(1)}h</Text>
-                </View>
-                <View style={{ height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, overflow: 'hidden' }}>
-                  <View style={{ width: `${Math.min((horas / 12) * 100, 100)}%` as `${number}%`, height: 6, backgroundColor: TIPO_COLOR[selected.tipo] ?? '#6B7280', borderRadius: 3 }} />
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Lista de salas */}
-        <View style={{ paddingHorizontal: 16 }}>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>Todas as salas</Text>
-          {salas.map((sala) => (
-            <TouchableOpacity
-              key={sala.sala}
-              onPress={() => setSelectedSala((prev) => prev === sala.sala ? null : sala.sala)}
-              style={{ backgroundColor: selectedSala === sala.sala ? '#F0FDF4' : '#FFFFFF', borderRadius: 10, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: selectedSala === sala.sala ? '#86EFAC' : '#E5E7EB' }}
-            >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: TIPO_COLOR[sala.tipo] ?? '#6B7280' }} />
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>{sala.sala}</Text>
-                </View>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>{sala.totalHoras.toFixed(1)}h</Text>
-              </View>
-              <OccupancyBar percentual={sala.percentual} tipo={sala.tipo} />
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
+        <Pilula label="SAGE Map" ativo={modulo === 'map'} cor="#059669" bg="#ECFDF5" onPress={() => setModulo('map')} />
+        <Pilula label="SAGE Rural" ativo={modulo === 'rural'} cor={RURAL_COLOR} bg={RURAL_BG} onPress={() => setModulo('rural')} />
+      </View>
+      {/* Cada módulo é um componente próprio: só os hooks do módulo ativo rodam */}
+      {modulo === 'map' ? <ReportMap /> : <ReportRural />}
     </SafeAreaView>
   )
 }

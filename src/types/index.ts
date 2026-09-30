@@ -11,7 +11,7 @@ export interface Alocacao {
   curso: string | null     // curso ao qual a turma pertence (ex: "Ciência da Computação")
 }
 
-export type AlocacaoInput = Omit<Alocacao, 'id' | 'periodo' | 'semestre' | 'curso'>
+export type AlocacaoInput = Omit<Alocacao, 'id' | 'periodo' | 'semestre'>
 
 export type TipoSala = 'sala_aula' | 'sala_inovacao' | 'laboratorio'
 
@@ -55,3 +55,19 @@ export interface Manutencao {
 }
 
 export type ManutencaoInput = Omit<Manutencao, 'id'>
+
+// Reserva pontual (data específica) em slot livre de alocação — SAGE Map / SAGE Rural
+export type ModuloReserva = 'map' | 'rural'
+
+export interface ReservaPontual {
+  id: number
+  disciplina: string
+  professor: string | null
+  data: string        // "YYYY-MM-DD"
+  inicio: string      // "HH:MM"
+  fim: string         // "HH:MM"
+  sala: string
+  modulo: ModuloReserva
+}
+
+export type ReservaPontualInput = Omit<ReservaPontual, 'id'>

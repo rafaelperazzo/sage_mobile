@@ -37,18 +37,19 @@ interface BuscarSalaProps {
   loading: boolean
   error: string | null
   isAdmin: boolean
+  modulo?: 'map' | 'rural'
 }
 
-function SalaResultCard({ alocacao, isAdmin }: { alocacao: Alocacao; isAdmin: boolean }) {
+function SalaResultCard({ alocacao, isAdmin, modulo }: { alocacao: Alocacao; isAdmin: boolean; modulo: 'map' | 'rural' }) {
   const info = getSalaInfo(alocacao.sala)
   const tipo = info?.tipo ?? 'sala_aula'
   const tipoLabel = TIPO_LABEL[tipo]
 
   function handlePress() {
     if (isAdmin) {
-      router.push({ pathname: '/map/[id]/edit', params: { id: alocacao.id, sala: alocacao.sala } } as never)
+      router.push({ pathname: `/${modulo}/[id]/edit`, params: { id: alocacao.id, sala: alocacao.sala } } as never)
     } else {
-      router.push({ pathname: '/map/[id]/view', params: { id: alocacao.id } } as never)
+      router.push({ pathname: `/${modulo}/[id]/view`, params: { id: alocacao.id } } as never)
     }
   }
 
@@ -99,7 +100,7 @@ function SalaResultCard({ alocacao, isAdmin }: { alocacao: Alocacao; isAdmin: bo
   )
 }
 
-export function BuscarSala({ alocacoes, loading, error, isAdmin }: BuscarSalaProps) {
+export function BuscarSala({ alocacoes, loading, error, isAdmin, modulo = 'map' }: BuscarSalaProps) {
   const [query, setQuery] = useState('')
   const [selectedDisciplina, setSelectedDisciplina] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -223,7 +224,7 @@ export function BuscarSala({ alocacoes, loading, error, isAdmin }: BuscarSalaPro
           </View>
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 12, gap: 10 }} showsVerticalScrollIndicator>
             {alocacoesDisciplina.map((a) => (
-              <SalaResultCard key={a.id} alocacao={a} isAdmin={isAdmin} />
+              <SalaResultCard key={a.id} alocacao={a} isAdmin={isAdmin} modulo={modulo} />
             ))}
           </ScrollView>
         </View>

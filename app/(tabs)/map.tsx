@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { router, useFocusEffect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -7,7 +7,10 @@ import { SALAS } from '../../src/constants/salas'
 import { useAlocacoesPorSala, useAlocacoes } from '../../src/hooks/useAlocacoes'
 import { useAuthContext } from '../../src/contexts/AuthContext'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
-import { WeekGrid } from '../../src/modules/map/WeekGrid'
+import { WeekGrid, reservasNoSlot } from '../../src/modules/map/WeekGrid'
+import { ReservasSlotModal } from '../../src/modules/map/ReservasSlotModal'
+import { useReservasPontuais } from '../../src/hooks/useReservasPontuais'
+import { useExportarGrade, nomeArquivoGrade } from '../../src/modules/map/pdf/exportarGrade'
 import { BuscarSala } from '../../src/modules/map/BuscarSala'
 import { InfraInfoBanner } from '../../src/modules/infra/InfraInfoBanner'
 import { ManutencaoAbertaBanner } from '../../src/modules/infra/ManutencaoAbertaBanner'
@@ -15,7 +18,7 @@ import { useInfraSala } from '../../src/hooks/useInfraSala'
 import { useManutencaoAberta } from '../../src/hooks/useManutencaoAberta'
 import { getCursoColor } from '../../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
-import type { Alocacao } from '../../src/types'
+import type { Alocacao, ReservaPontual } from '../../src/types'
 
 const TIPO_BORDER: Record<string, string> = {
   sala_aula: '#2563EB',
@@ -38,8 +41,11 @@ export default function MapScreen() {
   const { alocacoes: todasAlocacoes, loading: loadingTodas, error: errorTodas } = useAlocacoes()
   const { infra, loading: loadingInfra, reload: reloadInfra } = useInfraSala(selectedSala)
   const { manutencoes: manutencoesAbertas, loading: loadingManutencao, reload: reloadManutencao } = useManutencaoAberta(selectedSala)
+  const { reservas, reload: reloadReservas } = useReservasPontuais(selectedSala, 'map')
+  const [slotReservas, setSlotReservas] = useState<{ dia: string; inicio: string; fim: string } | null>(null)
+  const { exportar, exportando } = useExportarGrade()
 
-  useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao() }, [reload, reloadInfra, reloadManutencao]))
+  useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao(); void reloadReservas() }, [reload, reloadInfra, reloadManutencao, reloadReservas]))
 
   function handleCellPress(alocacao: Alocacao) {
     if (isAdmin) {
@@ -49,8 +55,34 @@ export default function MapScreen() {
     }
   }
 
-  function handleEmptyCellPress(dia: string, hora: string) {
-    router.push({ pathname: '/map/create', params: { sala: selectedSala, dia, hora } } as never)
+  function novaAlocacao(dia: string, inicio: string) {
+    router.push({ pathname: '/map/create', params: { sala: selectedSala, dia, hora: inicio } } as never)
+  }
+
+  function novaReserva(dia: string, inicio: string, fim: string) {
+    router.push({ pathname: '/reservas/create', params: { modulo: 'map', sala: selectedSala, dia, inicio, fim } } as never)
+  }
+
+  function handleEmptyCellPress(dia: string, inicio: string, fim: string) {
+    Alert.alert('Slot livre', `${dia} · ${inicio}–${fim}`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Nova alocação', onPress: () => novaAlocacao(dia, inicio) },
+      { text: 'Nova reserva', onPress: () => novaReserva(dia, inicio, fim) },
+    ])
+  }
+
+  function handleEditReserva(reserva: ReservaPontual) {
+    setSlotReservas(null)
+    router.push({ pathname: '/reservas/[id]/edit', params: { id: reserva.id, modulo: 'map', sala: reserva.sala } } as never)
+  }
+
+  function handleExportar() {
+    void exportar({
+      modulo: 'map',
+      periodo,
+      paginas: [{ sala: selectedSala, alocacoes }],
+      nomeArquivo: nomeArquivoGrade('map', selectedSala, periodo),
+    })
   }
 
   function handleInfraPress() {
@@ -145,10 +177,22 @@ export default function MapScreen() {
             <Text style={{ fontSize: 11, color: '#9CA3AF' }}>
               {alocacoes.length} alocaç{alocacoes.length === 1 ? 'ão' : 'ões'}
             </Text>
+            <TouchableOpacity
+              onPress={handleExportar}
+              disabled={loading || exportando}
+              accessibilityLabel="Exportar grade em PDF"
+              style={{ marginLeft: 'auto', padding: 6, borderRadius: 16, backgroundColor: '#F3F4F6', opacity: loading || exportando ? 0.5 : 1 }}
+            >
+              {exportando ? (
+                <ActivityIndicator size="small" color={color} />
+              ) : (
+                <Ionicons name="share-outline" size={16} color={color} />
+              )}
+            </TouchableOpacity>
             {isAdmin && (
               <TouchableOpacity
                 onPress={() => router.push({ pathname: '/map/create', params: { sala: selectedSala } } as never)}
-                style={{ marginLeft: 'auto', backgroundColor: color, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 }}
+                style={{ backgroundColor: color, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 }}
               >
                 <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>+ Nova</Text>
               </TouchableOpacity>
@@ -217,8 +261,25 @@ export default function MapScreen() {
             isAdmin={isAdmin}
             onCellPress={handleCellPress}
             onEmptyCellPress={handleEmptyCellPress}
+            reservas={reservas}
+            onReservasPress={(dia, inicio, fim) => setSlotReservas({ dia, inicio, fim })}
           />
         </ScrollView>
+      )}
+
+      {slotReservas && (
+        <ReservasSlotModal
+          dia={slotReservas.dia}
+          inicio={slotReservas.inicio}
+          fim={slotReservas.fim}
+          reservas={reservasNoSlot(reservas, slotReservas.dia, slotReservas.inicio, slotReservas.fim)}
+          canEdit={isAdmin}
+          accentColor={color}
+          onClose={() => setSlotReservas(null)}
+          onNovaAlocacao={() => { const { dia, inicio } = slotReservas; setSlotReservas(null); novaAlocacao(dia, inicio) }}
+          onNovaReserva={() => { const { dia, inicio, fim } = slotReservas; setSlotReservas(null); novaReserva(dia, inicio, fim) }}
+          onEditReserva={handleEditReserva}
+        />
       )}
     </SafeAreaView>
   )

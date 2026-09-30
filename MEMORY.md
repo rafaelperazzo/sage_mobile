@@ -65,3 +65,98 @@ was left as a single `.select()` since a single room/period slice is nowhere nea
 is silently capped at 1000 rows — this bug will recur elsewhere as other tables grow past
 that size. `alocacao_2026.1` and `infra_salas` are far below it today but worth checking
 first if a similar "some rows missing" report comes in for those.
+
+## 2026-09-30 — Reservas pontuais, alocação em lote, curso, PDF e Report com Rural
+
+Six features in one session. All uncommitted at the end of the day, as a single changeset. Code-level structure is documented in [CLAUDE.md](CLAUDE.md); this entry records the *why* and the gotchas.
+
+### 1. Reservas pontuais (Map + Rural)
+
+**Context:** the `reservas_pontuais` table already existed. Its columns: `disciplina`, `professor`, `data`, `inicio`/`fim` (text `"HH:MM"`), `sala`, and `modulo`, restricted by CHECK to `'map' | 'rural'`. Its RLS matches `externas`. No migration was needed.
+
+**User decisions:**
+- **Slot tap (admin):** an `Alert` asks "Nova alocação" or "Nova reserva".
+- **Date:** the reserva's date is **locked to the weekday** of the tapped column; the default is its next occurrence.
+- **Time:** start and end are pre-filled from the slot and can be adjusted.
+- **Conflicts:** a reserva is blocked if it clashes with an alocação (same weekday) or with another reserva on the same date.
+- **Grid display:** a free slot with future reservas becomes an amber **VER RESERVAS** cell. Anyone can open its modal. The modal lists only **that slot's** future reservas (`data >= hoje`).
+
+**Gotchas:**
+- `hojeYMD()` builds the date from local time. `toISOString()` would shift it to UTC.
+- Free hours outside the 2-hour daytime blocks (07h, 12h, 13h) get a VER RESERVAS block only when a reserva exists there, so no reserva is ever invisible.
+
+### 2. Alocação em até 3 dias/horários + alteração/remoção em lote
+
+**User decisions:**
+- **Create:** a checkbox "Alocar em outro dia/horário" adds up to 2 extra blocks. Each has its own dia, horário and **sala**.
+- **Edit:** the sala is now editable. "Refletir em todos os dias e horários da disciplina" propagates **disciplina, professor, curso and sala**; dia and horário change only on the edited row.
+- **Remove:** "Só esta" or "Todas".
+- **Same turma** = same `disciplina` + `professor` + `curso`, compared after `normalize` + trim; `null` only matches `null`.
+- **Conflicts now blocked** (user choice), including between blocks of the same form:
+  - an alocação against another alocação;
+  - an alocação against a **future reserva pontual**.
+
+**Implementation choices:**
+- Batch create is a single `.insert([...])`, so it is atomic.
+- Batch update is sequential `update`s, because PostgREST has no transactions. Everything is validated before the first write.
+- `useContextoMap()` / `useContextoRural()` plus `<ComModulo>` keep the Map screens from ever downloading the paginated `externas` table.
+
+**Bug fixed along the way:** `BuscarSala` always navigated to `/map/[id]/edit`, even from SAGE Rural. Once edit looked up ids across the whole período, that could have opened the **wrong** Map alocação. It now receives `modulo`.
+
+### 3. Curso no cadastro/edição + período compartilhado no Rural
+
+- **Why:** alocações created by the app used to save `curso = null`, so they never grouped with imported turmas.
+- **`curso` is now required** (`CursoField`). It is a picker of the período's existing cursos plus "Outro…" for free text. The picker avoids spelling variants: `externas` already had `"LICENCIATURA EM HISTÓRIA"` alongside `" LICENCIATURA EM HISTÓRIA "`.
+- **Período no Rural:** the user wants alocações saved into the período **selected on screen**, as Map already does. Rural create/edit used to call their own `usePeriodoExterna()`, which always picked the current período.
+  - Fix: `PeriodoExternaContext`, mounted in `app/_layout.tsx`.
+  - It loads lazily, on the first `usePeriodoExterna()` call.
+  - The Salas Livres screen now uses that same shared período.
+- The período picker on both screens only renders when `periodos.length > 1`. `externas` has only `2026.2` today, so the Rural picker is hidden. The user asked where it was; it is not missing.
+
+### 4. Exportar grade em PDF
+
+**Behavior:**
+- Map exports one sala.
+- Rural also exports a whole **prédio** (one sala per page). A prédio is the sala-name prefix before `" - "`, since there is no prédio column.
+- Anyone can export.
+- Reservas pontuais are excluded.
+- The SÁB column appears only if some alocação in the document falls on Saturday.
+
+**Implementation:**
+- An HTML/CSS A4-landscape page is rendered by `expo-print`, renamed with `expo-file-system` (`File`/`Paths`), then shared with `expo-sharing`.
+- The layout was verified by generating the HTML from real rows (via sucrase in a scratch dir), printing it with headless Chrome and inspecting the PNGs.
+
+**Release gotcha:**
+- These are **native modules**. Ship them as a **minor** tag, which triggers a native build.
+- A patch/OTA would reach no installed binary: `deploy.sh` rewrites `runtimeVersion` on every bump, and `runtimeVersion` is a fixed string, not a policy.
+
+### 5. Incident: `Cannot find module 'react-refresh/babel'`
+
+- **Cause:**
+  - The PDF deps were installed with `NPM_CONFIG_LEGACY_PEER_DEPS=true`, as CLAUDE.md says.
+  - The committed `package-lock.json` contains `"peer": true` entries (`react-refresh`, `react-dom`, `@react-native/babel-preset`…), and legacy mode **pruned** them.
+  - `babel-preset-expo` requires `react-refresh` in dev mode.
+- **Why it slipped:** a production `npx expo export` passed, because production builds don't load the refresh plugin.
+- **Fix:** `git checkout HEAD -- package-lock.json`, then a plain `npm install`. It ran with no ERESOLVE, and the lock now only *adds* the 3 packages.
+- **Lesson:** after any dependency change, check `git diff package-lock.json` for removed `node_modules/...` entries. Then verify with a **dev** bundle: `expo start`, then fetch `entry.bundle?platform=android&dev=true&hot=true`.
+- **Open question:** CLAUDE.md's "legacy peer deps is required" contradicts the committed lockfile. It was left unchanged; the user was asked.
+
+### 6. SAGE Report: Rural + night rounding
+
+**Rule (user decision):**
+- Capacity stays **12h per weekday**: morning 4h + afternoon 4h + 2 night blocks × 2h.
+- Each night block (18:30–20:10, 20:10–21:50) counts **2h if any alocação touches it**; partial use still counts.
+- Daytime counts real hours, with overlaps merged.
+- The result is capped at 100%. Saturday is excluded, as before.
+
+**Verified:**
+- SALA 02 / 2026.2 = 56h = **93%**; the old rule gave 89%.
+- DEFIS rooms were checked by hand.
+
+**UI:**
+- A **SAGE Map | SAGE Rural** toggle. Each module is its own component, so only the active one's hooks run.
+- Rural has a prédio filter. On "Todos", the chart shows each prédio's average.
+
+**Expect higher 2026.1 numbers:** 2026.1 night classes use full hours (e.g. 19:00–21:00). Under the any-touch rule these touch both blocks and count 4h. This is intended.
+
+**Pre-existing, left as is:** the Report chart passes no `font` to `CartesianChart`, so victory-native draws no axis labels, only bars. The list below the chart carries the names.

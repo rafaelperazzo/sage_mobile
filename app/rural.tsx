@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { router, useFocusEffect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -7,7 +7,11 @@ import { useAlocacoesExternasPorSala, useAlocacoesExternas } from '../src/hooks/
 import { useSalasExternas } from '../src/hooks/useSalasExternas'
 import { usePeriodoExterna } from '../src/hooks/usePeriodoExterna'
 import { useModulePermission } from '../src/hooks/useModulePermission'
-import { WeekGrid } from '../src/modules/map/WeekGrid'
+import { WeekGrid, reservasNoSlot } from '../src/modules/map/WeekGrid'
+import { ReservasSlotModal } from '../src/modules/map/ReservasSlotModal'
+import { useReservasPontuais } from '../src/hooks/useReservasPontuais'
+import { useExportarGrade, nomeArquivoGrade } from '../src/modules/map/pdf/exportarGrade'
+import { predioDaSala, ordenarSalas } from '../src/lib/predio'
 import { BuscarSala } from '../src/modules/map/BuscarSala'
 import { InfraInfoBanner } from '../src/modules/infra/InfraInfoBanner'
 import { ManutencaoAbertaBanner } from '../src/modules/infra/ManutencaoAbertaBanner'
@@ -15,7 +19,7 @@ import { useInfraSala } from '../src/hooks/useInfraSala'
 import { useManutencaoAberta } from '../src/hooks/useManutencaoAberta'
 import { getCursoColor } from '../src/lib/cursoColors'
 import { Ionicons } from '@expo/vector-icons'
-import type { Alocacao } from '../src/types'
+import type { Alocacao, ReservaPontual } from '../src/types'
 
 const ACCENT_COLOR = '#0E7490'
 const ACCENT_BG = '#ECFEFF'
@@ -30,12 +34,15 @@ export default function RuralScreen() {
   const { alocacoes: todasAlocacoes, loading: loadingTodas, error: errorTodas } = useAlocacoesExternas(periodo)
   const { infra, loading: loadingInfra, reload: reloadInfra } = useInfraSala(selectedSala)
   const { manutencoes: manutencoesAbertas, loading: loadingManutencao, reload: reloadManutencao } = useManutencaoAberta(selectedSala)
+  const { reservas, reload: reloadReservas } = useReservasPontuais(selectedSala, 'rural')
+  const [slotReservas, setSlotReservas] = useState<{ dia: string; inicio: string; fim: string } | null>(null)
+  const { exportar, exportando } = useExportarGrade()
 
   useEffect(() => {
     if (!selectedSala && salas.length > 0) setSelectedSala(salas[0]!)
   }, [salas, selectedSala])
 
-  useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao() }, [reload, reloadInfra, reloadManutencao]))
+  useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao(); void reloadReservas() }, [reload, reloadInfra, reloadManutencao, reloadReservas]))
 
   function handleCellPress(alocacao: Alocacao) {
     if (hasAccess) {
@@ -45,8 +52,63 @@ export default function RuralScreen() {
     }
   }
 
-  function handleEmptyCellPress(dia: string, hora: string) {
-    router.push({ pathname: '/rural/create', params: { sala: selectedSala, dia, hora } } as never)
+  function novaAlocacao(dia: string, inicio: string) {
+    router.push({ pathname: '/rural/create', params: { sala: selectedSala, dia, hora: inicio } } as never)
+  }
+
+  function novaReserva(dia: string, inicio: string, fim: string) {
+    router.push({ pathname: '/reservas/create', params: { modulo: 'rural', sala: selectedSala, dia, inicio, fim } } as never)
+  }
+
+  function handleEmptyCellPress(dia: string, inicio: string, fim: string) {
+    Alert.alert('Slot livre', `${dia} · ${inicio}–${fim}`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Nova alocação', onPress: () => novaAlocacao(dia, inicio) },
+      { text: 'Nova reserva', onPress: () => novaReserva(dia, inicio, fim) },
+    ])
+  }
+
+  function handleEditReserva(reserva: ReservaPontual) {
+    setSlotReservas(null)
+    router.push({ pathname: '/reservas/[id]/edit', params: { id: reserva.id, modulo: 'rural', sala: reserva.sala } } as never)
+  }
+
+  function exportarSala() {
+    void exportar({
+      modulo: 'rural',
+      periodo,
+      paginas: [{ sala: selectedSala, alocacoes }],
+      nomeArquivo: nomeArquivoGrade('rural', selectedSala, periodo),
+    })
+  }
+
+  // Uma página por sala do prédio, em ordem natural (SALA 2 antes de SALA 10)
+  function exportarPredio(predio: string) {
+    const salasDoPredio = ordenarSalas(salas.filter((s) => predioDaSala(s) === predio))
+    void exportar({
+      modulo: 'rural',
+      periodo,
+      predio,
+      paginas: salasDoPredio.map((sala) => ({ sala, alocacoes: todasAlocacoes.filter((a) => a.sala === sala) })),
+      nomeArquivo: nomeArquivoGrade('rural', `Predio ${predio}`, periodo),
+    })
+  }
+
+  function handleExportar() {
+    const predio = predioDaSala(selectedSala)
+    if (!predio) {
+      exportarSala()
+      return
+    }
+    const qtdSalas = salas.filter((s) => predioDaSala(s) === predio).length
+    Alert.alert('Exportar grade em PDF', 'Escolha o que exportar:', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: `Sala ${selectedSala}`, onPress: exportarSala },
+      {
+        text: loadingTodas ? 'Prédio (carregando…)' : `Prédio ${predio} (${qtdSalas} salas)`,
+        onPress: () => { if (!loadingTodas) exportarPredio(predio) },
+      },
+    ])
   }
 
   const cursosNaSala = Array.from(
@@ -125,10 +187,22 @@ export default function RuralScreen() {
             <Text style={{ fontSize: 11, color: '#9CA3AF' }}>
               {alocacoes.length} alocaç{alocacoes.length === 1 ? 'ão' : 'ões'}
             </Text>
+            <TouchableOpacity
+              onPress={handleExportar}
+              disabled={loading || exportando}
+              accessibilityLabel="Exportar grade em PDF"
+              style={{ marginLeft: 'auto', padding: 6, borderRadius: 16, backgroundColor: '#F3F4F6', opacity: loading || exportando ? 0.5 : 1 }}
+            >
+              {exportando ? (
+                <ActivityIndicator size="small" color={ACCENT_COLOR} />
+              ) : (
+                <Ionicons name="share-outline" size={16} color={ACCENT_COLOR} />
+              )}
+            </TouchableOpacity>
             {hasAccess && (
               <TouchableOpacity
                 onPress={() => router.push({ pathname: '/rural/create', params: { sala: selectedSala } } as never)}
-                style={{ marginLeft: 'auto', backgroundColor: ACCENT_COLOR, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 }}
+                style={{ backgroundColor: ACCENT_COLOR, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 }}
               >
                 <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>+ Nova</Text>
               </TouchableOpacity>
@@ -172,7 +246,7 @@ export default function RuralScreen() {
 
       {/* Conteúdo */}
       {mode === 'buscar' ? (
-        <BuscarSala alocacoes={todasAlocacoes} loading={loadingTodas} error={errorTodas} isAdmin={hasAccess} />
+        <BuscarSala alocacoes={todasAlocacoes} loading={loadingTodas} error={errorTodas} isAdmin={hasAccess} modulo="rural" />
       ) : loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color={ACCENT_COLOR} />
@@ -196,8 +270,25 @@ export default function RuralScreen() {
             isAdmin={hasAccess}
             onCellPress={handleCellPress}
             onEmptyCellPress={handleEmptyCellPress}
+            reservas={reservas}
+            onReservasPress={(dia, inicio, fim) => setSlotReservas({ dia, inicio, fim })}
           />
         </ScrollView>
+      )}
+
+      {slotReservas && (
+        <ReservasSlotModal
+          dia={slotReservas.dia}
+          inicio={slotReservas.inicio}
+          fim={slotReservas.fim}
+          reservas={reservasNoSlot(reservas, slotReservas.dia, slotReservas.inicio, slotReservas.fim)}
+          canEdit={hasAccess}
+          accentColor={ACCENT_COLOR}
+          onClose={() => setSlotReservas(null)}
+          onNovaAlocacao={() => { const { dia, inicio } = slotReservas; setSlotReservas(null); novaAlocacao(dia, inicio) }}
+          onNovaReserva={() => { const { dia, inicio, fim } = slotReservas; setSlotReservas(null); novaReserva(dia, inicio, fim) }}
+          onEditReserva={handleEditReserva}
+        />
       )}
     </SafeAreaView>
   )

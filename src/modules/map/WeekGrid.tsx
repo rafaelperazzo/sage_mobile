@@ -1,8 +1,8 @@
 import { useRef } from 'react'
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
-import type { Alocacao } from '../../types'
+import type { Alocacao, ReservaPontual } from '../../types'
 import { DIAS, HORAS } from '../../constants/salas'
-import { timeToMinutes } from './gridUtils'
+import { timeToMinutes, minutesToTime, DIA_POR_GETDAY, diaSemanaDeData, intervalosSobrepoem } from './gridUtils'
 import { AllocationCard } from './AllocationCard'
 
 const ROW_HEIGHT = 52
@@ -29,23 +29,6 @@ const NIGHT_START_MIN = 18 * 60 + 30 // 18:30
 const NIGHT_END_MIN = 21 * 60 + 50   // 21:50
 const MIN_GAP_MIN = 10 // ignora frestas menores que isso — pouco úteis para alocar aula
 
-function minutesToTime(mins: number): string {
-  const h = Math.floor(mins / 60)
-  const m = mins % 60
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-}
-
-// Mapeia Date.getDay() (0=domingo) para o rótulo de dia usado em DIAS
-const DIA_POR_GETDAY: Record<number, string | undefined> = {
-  0: undefined,
-  1: 'SEGUNDA',
-  2: 'TERÇA',
-  3: 'QUARTA',
-  4: 'QUINTA',
-  5: 'SEXTA',
-  6: 'SÁBADO',
-}
-
 function nextHour(hora: string): string {
   const h = Number(hora.slice(0, 2))
   return `${String(h + 1).padStart(2, '0')}:00`
@@ -53,9 +36,27 @@ function nextHour(hora: string): string {
 
 interface WeekGridProps {
   alocacoes: Alocacao[]
+  reservas?: ReservaPontual[]
   isAdmin: boolean
   onCellPress: (alocacao: Alocacao) => void
-  onEmptyCellPress: (dia: string, hora: string) => void
+  onEmptyCellPress: (dia: string, inicio: string, fim: string) => void
+  onReservasPress?: (dia: string, inicio: string, fim: string) => void
+}
+
+// Slot livre desenhado na grade (bloco diurno de 1–2h, fresta noturna, ou hora avulsa com reservas)
+interface SlotLivre {
+  key: string
+  inicio: string
+  fim: string
+  top: number
+  height: number
+}
+
+// Reservas pontuais que caem num slot (mesmo dia da semana e horário sobreposto)
+export function reservasNoSlot(reservas: ReservaPontual[], dia: string, inicio: string, fim: string): ReservaPontual[] {
+  return reservas.filter(
+    (r) => diaSemanaDeData(r.data) === dia && intervalosSobrepoem(r.inicio, r.fim, inicio, fim)
+  )
 }
 
 const DIA_SHORT: Record<string, string> = {
@@ -67,7 +68,7 @@ const DIA_SHORT: Record<string, string> = {
   SÁBADO: 'SÁB',
 }
 
-export function WeekGrid({ alocacoes, isAdmin, onCellPress, onEmptyCellPress }: WeekGridProps) {
+export function WeekGrid({ alocacoes, reservas = [], isAdmin, onCellPress, onEmptyCellPress, onReservasPress }: WeekGridProps) {
   const scrollRef = useRef<ScrollView>(null)
   const totalGridH = HORAS.length * ROW_HEIGHT
 
@@ -111,6 +112,52 @@ export function WeekGrid({ alocacoes, isAdmin, onCellPress, onEmptyCellPress }: 
     if (cursor < NIGHT_END_MIN) gaps.push({ start: cursor, end: NIGHT_END_MIN })
 
     return gaps.filter((g) => g.end - g.start >= MIN_GAP_MIN)
+  }
+
+  function slotAt(key: string, inicioMin: number, fimMin: number): SlotLivre {
+    return {
+      key,
+      inicio: minutesToTime(inicioMin),
+      fim: minutesToTime(fimMin),
+      top: (inicioMin / 60 - FIRST_HOUR) * ROW_HEIGHT,
+      height: ((fimMin - inicioMin) / 60) * ROW_HEIGHT - 2,
+    }
+  }
+
+  // Slots livres destacados do dia: blocos diurnos (agrupados de 2 em 2h quando possível),
+  // frestas noturnas exatas e, por fim, horas avulsas livres que tenham reservas pontuais.
+  function slotsLivres(dia: string): SlotLivre[] {
+    const slots: SlotLivre[] = []
+
+    for (const [h1, h2] of BLOCOS_LIVRE_2H) {
+      const livre1 = !isHourOccupied(dia, h1)
+      const livre2 = !isHourOccupied(dia, h2)
+      const m1 = timeToMinutes(h1)
+      const m2 = timeToMinutes(h2)
+      if (livre1 && livre2) {
+        slots.push(slotAt(`${dia}-${h1}`, m1, m2 + 60))
+        continue
+      }
+      if (livre1) slots.push(slotAt(`${dia}-${h1}`, m1, m1 + 60))
+      if (livre2) slots.push(slotAt(`${dia}-${h2}`, m2, m2 + 60))
+    }
+
+    for (const gap of nightFreeGaps(dia)) {
+      slots.push(slotAt(`${dia}-night-${gap.start}`, gap.start, gap.end))
+    }
+
+    // Horas fora dos blocos acima (07h, 12h, 13h...) só ganham destaque se tiverem reservas
+    for (const hora of HORAS) {
+      const hMin = timeToMinutes(hora)
+      if (isHourOccupied(dia, hora)) continue
+      const coberta = slots.some((s) => timeToMinutes(s.inicio) < hMin + 60 && timeToMinutes(s.fim) > hMin)
+      if (coberta) continue
+      if (reservasNoSlot(reservas, dia, hora, nextHour(hora)).length > 0) {
+        slots.push(slotAt(`${dia}-avulsa-${hora}`, hMin, hMin + 60))
+      }
+    }
+
+    return slots
   }
 
   const totalH = totalGridH + HEADER_H
@@ -187,70 +234,27 @@ export function WeekGrid({ alocacoes, isAdmin, onCellPress, onEmptyCellPress }: 
                   borderBottomColor: '#F3F4F6',
                 }}
                 onPress={() => {
-                  if (isAdmin) onEmptyCellPress(dia, hora)
+                  if (isAdmin) onEmptyCellPress(dia, hora, nextHour(hora))
                 }}
               />
             ))}
 
-            {/* Slots livres — destacados, agrupados de 2 em 2h quando possível */}
-            {BLOCOS_LIVRE_2H.flatMap(([h1, h2]) => {
-              const livre1 = !isHourOccupied(dia, h1)
-              const livre2 = !isHourOccupied(dia, h2)
-              const idx1 = HORAS.indexOf(h1)
-              const idx2 = HORAS.indexOf(h2)
-
-              if (livre1 && livre2) {
-                return [
-                  <FreeSlot
-                    key={`${dia}-${h1}`}
-                    top={idx1 * ROW_HEIGHT}
-                    height={ROW_HEIGHT * 2 - 2}
-                    label={`${h1}-${nextHour(h2)}`}
-                    isAdmin={isAdmin}
-                    onPress={() => onEmptyCellPress(dia, h1)}
-                  />,
-                ]
-              }
-
-              const slots = []
-              if (livre1) {
-                slots.push(
-                  <FreeSlot
-                    key={`${dia}-${h1}`}
-                    top={idx1 * ROW_HEIGHT}
-                    height={ROW_HEIGHT - 2}
-                    label={`${h1}-${nextHour(h1)}`}
-                    isAdmin={isAdmin}
-                    onPress={() => onEmptyCellPress(dia, h1)}
-                  />
-                )
-              }
-              if (livre2) {
-                slots.push(
-                  <FreeSlot
-                    key={`${dia}-${h2}`}
-                    top={idx2 * ROW_HEIGHT}
-                    height={ROW_HEIGHT - 2}
-                    label={`${h2}-${nextHour(h2)}`}
-                    isAdmin={isAdmin}
-                    onPress={() => onEmptyCellPress(dia, h2)}
-                  />
-                )
-              }
-              return slots
+            {/* Slots livres — destacados; viram VER RESERVAS quando há reservas pontuais futuras */}
+            {slotsLivres(dia).map((slot) => {
+              const qtdReservas = reservasNoSlot(reservas, dia, slot.inicio, slot.fim).length
+              return (
+                <FreeSlot
+                  key={slot.key}
+                  top={slot.top}
+                  height={slot.height}
+                  label={`${slot.inicio}-${slot.fim}`}
+                  isAdmin={isAdmin}
+                  reservasCount={qtdReservas}
+                  onPress={() => onEmptyCellPress(dia, slot.inicio, slot.fim)}
+                  onReservasPress={() => onReservasPress?.(dia, slot.inicio, slot.fim)}
+                />
+              )
             })}
-
-            {/* Slots livres noturnos — calculados por fresta exata dentro de 18:30–21:50 */}
-            {nightFreeGaps(dia).map((gap) => (
-              <FreeSlot
-                key={`${dia}-night-${gap.start}`}
-                top={(gap.start / 60 - FIRST_HOUR) * ROW_HEIGHT}
-                height={((gap.end - gap.start) / 60) * ROW_HEIGHT - 2}
-                label={`${minutesToTime(gap.start)}-${minutesToTime(gap.end)}`}
-                isAdmin={isAdmin}
-                onPress={() => onEmptyCellPress(dia, minutesToTime(gap.start))}
-              />
-            ))}
 
             {/* Blocos de alocação — absolute, altura proporcional */}
             {byDia[dia]?.map((alocacao) => {
@@ -289,14 +293,19 @@ function FreeSlot({
   height,
   label,
   isAdmin,
+  reservasCount,
   onPress,
+  onReservasPress,
 }: {
   top: number
   height: number
   label: string
   isAdmin: boolean
+  reservasCount: number
   onPress: () => void
+  onReservasPress: () => void
 }) {
+  const temReservas = reservasCount > 0
   return (
     <TouchableOpacity
       style={{
@@ -305,20 +314,33 @@ function FreeSlot({
         height,
         width: COL_WIDTH - 6,
         left: 3,
-        backgroundColor: '#ECFEFF',
+        backgroundColor: temReservas ? '#FFFBEB' : '#ECFEFF',
         borderWidth: 1,
-        borderColor: '#A5F3FC',
+        borderColor: temReservas ? '#FCD34D' : '#A5F3FC',
         borderRadius: 4,
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      activeOpacity={isAdmin ? 0.6 : 1}
+      activeOpacity={temReservas || isAdmin ? 0.6 : 1}
       onPress={() => {
-        if (isAdmin) onPress()
+        // VER RESERVAS abre para todos; slot livre sem reservas só reage para admin
+        if (temReservas) onReservasPress()
+        else if (isAdmin) onPress()
       }}
     >
-      <Text style={{ fontSize: 9, fontWeight: '700', color: '#0E7490' }}>LIVRE</Text>
-      <Text style={{ fontSize: 8, color: '#0891B2', marginTop: 1 }}>{label}</Text>
+      {temReservas ? (
+        <>
+          <Text style={{ fontSize: 9, fontWeight: '700', color: '#B45309' }}>VER RESERVAS</Text>
+          <Text style={{ fontSize: 8, color: '#D97706', marginTop: 1 }}>
+            {reservasCount} · {label}
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={{ fontSize: 9, fontWeight: '700', color: '#0E7490' }}>LIVRE</Text>
+          <Text style={{ fontSize: 8, color: '#0891B2', marginTop: 1 }}>{label}</Text>
+        </>
+      )}
     </TouchableOpacity>
   )
 }

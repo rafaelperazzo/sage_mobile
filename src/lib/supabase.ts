@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import * as SecureStore from 'expo-secure-store'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform } from 'react-native'
-import type { Alocacao, AlocacaoInput, Reserva, ReservaInput, Manutencao, ManutencaoInput, InfraSala, InfraSalaInput } from '../types'
+import type { Alocacao, AlocacaoInput, Reserva, ReservaInput, Manutencao, ManutencaoInput, InfraSala, InfraSalaInput, ReservaPontual, ReservaPontualInput, ModuloReserva } from '../types'
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL as string
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string
@@ -127,6 +127,26 @@ export async function deleteAlocacao(id: number): Promise<void> {
     .from(TABLE_NAME)
     .delete()
     .eq('id', id)
+
+  if (error) throw error
+}
+
+// Insere várias alocações num único insert (atômico: entram todas ou nenhuma)
+export async function insertAlocacoes(inputs: AlocacaoInput[], periodo: string): Promise<Alocacao[]> {
+  const { data, error } = await supabase
+    .from(TABLE_NAME)
+    .insert(inputs.map((input) => ({ ...input, periodo })))
+    .select()
+
+  if (error) throw error
+  return data as Alocacao[]
+}
+
+export async function deleteAlocacoes(ids: number[]): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE_NAME)
+    .delete()
+    .in('id', ids)
 
   if (error) throw error
 }
@@ -382,6 +402,90 @@ export async function updateAlocacaoExterna(id: number, input: AlocacaoInput): P
 export async function deleteAlocacaoExterna(id: number): Promise<void> {
   const { error } = await supabase
     .from(RURAL_TABLE_NAME)
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+// Insere várias alocações externas num único insert (atômico: entram todas ou nenhuma)
+export async function insertAlocacoesExternas(inputs: AlocacaoInput[], periodo: string): Promise<Alocacao[]> {
+  const { data, error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .insert(inputs.map((input) => ({ ...input, periodo })))
+    .select()
+
+  if (error) throw error
+  return data as Alocacao[]
+}
+
+export async function deleteAlocacoesExternas(ids: number[]): Promise<void> {
+  const { error } = await supabase
+    .from(RURAL_TABLE_NAME)
+    .delete()
+    .in('id', ids)
+
+  if (error) throw error
+}
+
+// ── Reservas pontuais (Map / Rural) ─────────────────────────────
+
+export const RESERVAS_PONTUAIS_TABLE = 'reservas_pontuais'
+
+export async function fetchReservasPontuaisFuturas(sala: string, modulo: ModuloReserva, hoje: string): Promise<ReservaPontual[]> {
+  const { data, error } = await supabase
+    .from(RESERVAS_PONTUAIS_TABLE)
+    .select('*')
+    .eq('sala', sala)
+    .eq('modulo', modulo)
+    .gte('data', hoje)
+    .order('data')
+    .order('inicio')
+
+  if (error) throw error
+  return data as ReservaPontual[]
+}
+
+// Todas as reservas futuras do módulo (qualquer sala) — usado na checagem de choque das alocações
+export async function fetchReservasPontuaisFuturasModulo(modulo: ModuloReserva, hoje: string): Promise<ReservaPontual[]> {
+  const { data, error } = await supabase
+    .from(RESERVAS_PONTUAIS_TABLE)
+    .select('*')
+    .eq('modulo', modulo)
+    .gte('data', hoje)
+    .order('data')
+    .order('inicio')
+
+  if (error) throw error
+  return data as ReservaPontual[]
+}
+
+export async function insertReservaPontual(input: ReservaPontualInput): Promise<ReservaPontual> {
+  const { data, error } = await supabase
+    .from(RESERVAS_PONTUAIS_TABLE)
+    .insert(input)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as ReservaPontual
+}
+
+export async function updateReservaPontual(id: number, input: ReservaPontualInput): Promise<ReservaPontual> {
+  const { data, error } = await supabase
+    .from(RESERVAS_PONTUAIS_TABLE)
+    .update(input)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as ReservaPontual
+}
+
+export async function deleteReservaPontual(id: number): Promise<void> {
+  const { error } = await supabase
+    .from(RESERVAS_PONTUAIS_TABLE)
     .delete()
     .eq('id', id)
 
