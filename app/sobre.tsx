@@ -17,32 +17,80 @@ const MODULES: ModuleDoc[] = [
   {
     icon: 'map-outline', color: '#1D4ED8', bg: '#EFF6FF',
     title: 'SAGE Map',
-    description: 'Grade semanal interativa de todas as salas do departamento.',
-    features: ['Visualização por sala (13 ambientes)', 'Alocações multi-hora com altura proporcional', 'Criação e edição de alocações (admin)', 'Atualização em tempo real via Supabase Realtime'],
+    description: 'Grade semanal interativa das salas do departamento.',
+    features: [
+      'Visualização por sala (13 ambientes) e por período letivo',
+      'Horários livres destacados, inclusive os blocos noturnos',
+      'Busca de salas por disciplina',
+      'Infraestrutura da sala e chamados de manutenção em aberto',
+      'Alocação em até 3 dias/horários de uma vez (admin)',
+      'Alteração e remoção refletidas em todos os dias da turma (admin)',
+      'Reservas pontuais em horários livres, com verificação de choque (admin)',
+      'Exportação da grade da sala em PDF para compartilhar',
+    ],
   },
   {
     icon: 'calendar-outline', color: '#6D28D9', bg: '#F5F3FF',
     title: 'SAGE Agenda',
     description: 'Grade de horários completa por professor.',
-    features: ['Busca por nome com autocomplete', 'Grade visual semanal read-only', 'Filtro por período letivo'],
+    features: ['Busca por nome com autocomplete', 'Grade visual semanal somente leitura', 'Filtro por período letivo'],
   },
   {
     icon: 'bar-chart-outline', color: '#059669', bg: '#ECFDF5',
     title: 'SAGE Report',
-    description: 'Relatório de ocupação e disponibilidade das salas.',
-    features: ['Gráfico de barras por sala', 'Taxa de ocupação (base: 72h/semana)', 'Detalhamento por dia da semana', 'Agrupamento por tipo (sala, inovação, lab)'],
+    description: 'Relatório de ocupação das salas do SAGE Map e do SAGE Rural.',
+    features: [
+      'Gráfico de barras e taxa de ocupação por sala',
+      'Base de 60h/semana: 12h/dia, de segunda a sexta',
+      'À noite, cada bloco (18:30–20:10 e 20:10–21:50) com aula conta 2h',
+      'Detalhamento por dia da semana',
+      'SAGE Rural com filtro por prédio e média de cada prédio',
+    ],
   },
   {
     icon: 'business-outline', color: '#D97706', bg: '#FFFBEB',
     title: 'SAGE Auditório',
     description: 'Calendário mensal de reservas do auditório.',
-    features: ['Calendário mensal interativo', 'Criação e edição de reservas (admin)', 'Detecção de conflito de horário', 'Relatório de utilização mensal'],
+    features: ['Calendário mensal interativo', 'Criação e edição de reservas (admin)', 'Detecção de conflito de horário', 'Relatório de utilização mensal', 'Infraestrutura do auditório'],
   },
   {
     icon: 'construct-outline', color: '#EA580C', bg: '#FFF7ED',
     title: 'SAGE Manutenção',
     description: 'Gerenciamento de chamados de manutenção (RTs).',
-    features: ['Lista filtrada por status e texto', 'CRUD completo de chamados (admin)', 'Status: Aberto, Em andamento, Concluído, Cancelado', 'Registro de datas de abertura e conclusão'],
+    features: ['Lista filtrada por status e texto', 'Cadastro, edição e remoção de chamados (admin)', 'Status: Aberto, Em andamento, Concluído, Cancelado', 'Registro de datas de abertura e conclusão', 'Chamados em aberto exibidos na grade da sala'],
+  },
+  {
+    icon: 'school-outline', color: '#BE185D', bg: '#FDF2F6',
+    title: 'Grade Curricular',
+    description: 'Horários das disciplinas por curso e semestre.',
+    features: ['Cursos BCC e LC', 'Grade semanal do semestre escolhido', 'Disponível a partir do período 2026.2'],
+  },
+  {
+    icon: 'leaf-outline', color: '#0E7490', bg: '#ECFEFF',
+    title: 'SAGE Rural',
+    description: 'Grade semanal das salas de outros prédios da UFRPE.',
+    features: [
+      'Salas de prédios como CEAGRI 1, CEAGRI 2, CEGOE e DEFIS',
+      'Mesmos recursos de alocação e reservas do SAGE Map (usuários autorizados)',
+      'Busca de salas por disciplina',
+      'Exportação em PDF da sala ou do prédio inteiro, uma sala por página',
+    ],
+  },
+]
+
+// Recursos acessados pela tela inicial, fora dos módulos
+const EXTRAS: ModuleDoc[] = [
+  {
+    icon: 'checkmark-circle-outline', color: '#15803D', bg: '#F0FDF4',
+    title: 'Salas livres agora',
+    description: 'Salas sem aula neste exato momento.',
+    features: ['Considera as salas do SAGE Map e do SAGE Rural'],
+  },
+  {
+    icon: 'list-outline', color: '#BE185D', bg: '#FDF2F6',
+    title: 'Lista de disciplinas',
+    description: 'Todas as turmas do período, com horários e salas.',
+    features: ['Ordenada pelo nome da disciplina'],
   },
 ]
 
@@ -62,7 +110,7 @@ function ModuleCard({ mod }: { mod: ModuleDoc }) {
         <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: mod.bg, alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name={mod.icon} size={18} color={mod.color} />
         </View>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 14, fontWeight: '800', color: '#111827' }}>{mod.title}</Text>
           <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 1 }}>{mod.description}</Text>
         </View>
@@ -95,15 +143,21 @@ export default function SobreScreen() {
         {/* Sobre */}
         <Section title="Sobre o Sistema">
           <Text style={{ fontSize: 13, color: '#374151', lineHeight: 20 }}>
-            O SAGE é uma plataforma de gestão de espaços físicos do Departamento de Computação da UFRPE.
-            Permite o controle de alocações de salas, agenda de professores, relatórios de ocupação,
-            reservas do auditório e chamados de manutenção — tudo em tempo real.
+            O SAGE é uma plataforma de gestão de espaços físicos do Departamento de Computação da UFRPE,
+            que também acompanha salas de outros prédios da universidade pelo SAGE Rural. Permite o controle
+            de alocações e reservas de salas, agenda de professores, relatórios de ocupação, reservas do
+            auditório e chamados de manutenção.
           </Text>
         </Section>
 
         {/* Módulos */}
         <Section title="Módulos">
           {MODULES.map((mod) => <ModuleCard key={mod.title} mod={mod} />)}
+        </Section>
+
+        {/* Outros recursos */}
+        <Section title="Outros recursos">
+          {EXTRAS.map((mod) => <ModuleCard key={mod.title} mod={mod} />)}
         </Section>
 
       </ScrollView>
