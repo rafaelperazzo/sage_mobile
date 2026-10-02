@@ -11,7 +11,7 @@ import { WeekGrid, reservasNoSlot } from '../src/modules/map/WeekGrid'
 import { ReservasSlotModal } from '../src/modules/map/ReservasSlotModal'
 import { useReservasPontuais } from '../src/hooks/useReservasPontuais'
 import { useExportarGrade, nomeArquivoGrade } from '../src/modules/map/pdf/exportarGrade'
-import { predioDaSala, ordenarSalas } from '../src/lib/predio'
+import { predioDaSala, ordenarSalas, nomeSemPredio, SEM_PREDIO } from '../src/lib/predio'
 import { BuscarSala } from '../src/modules/map/BuscarSala'
 import { InfraInfoBanner } from '../src/modules/infra/InfraInfoBanner'
 import { ManutencaoAbertaBanner } from '../src/modules/infra/ManutencaoAbertaBanner'
@@ -38,8 +38,20 @@ export default function RuralScreen() {
   const [slotReservas, setSlotReservas] = useState<{ dia: string; inicio: string; fim: string } | null>(null)
   const { exportar, exportando } = useExportarGrade()
 
+  const grupoDaSala = (sala: string) => predioDaSala(sala) ?? SEM_PREDIO
+  // Prédios em ordem natural, com "Outras" (salas sem prefixo) por último
+  const predios = ordenarSalas(Array.from(new Set(salas.map(grupoDaSala))).filter((p) => p !== SEM_PREDIO))
+  if (salas.some((s) => grupoDaSala(s) === SEM_PREDIO)) predios.push(SEM_PREDIO)
+  const selectedPredio = selectedSala ? grupoDaSala(selectedSala) : (predios[0] ?? '')
+  const salasDoPredioSelecionado = ordenarSalas(salas.filter((s) => grupoDaSala(s) === selectedPredio))
+
+  function handlePredioChange(predio: string) {
+    const primeira = ordenarSalas(salas.filter((s) => grupoDaSala(s) === predio))[0]
+    if (primeira) setSelectedSala(primeira)
+  }
+
   useEffect(() => {
-    if (!selectedSala && salas.length > 0) setSelectedSala(salas[0]!)
+    if (!selectedSala && salas.length > 0) setSelectedSala(ordenarSalas(salas)[0]!)
   }, [salas, selectedSala])
 
   useFocusEffect(useCallback(() => { void reload(); void reloadInfra(); void reloadManutencao(); void reloadReservas() }, [reload, reloadInfra, reloadManutencao, reloadReservas]))
@@ -137,11 +149,18 @@ export default function RuralScreen() {
       {/* Seletor de sala */}
       <View style={{ borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
         {mode === 'grade' && (
-          <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
-            <View style={{ borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
+          <View style={{ paddingHorizontal: 12, paddingTop: 8, flexDirection: 'row', gap: 8 }}>
+            <View style={{ flex: 1, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
+              <Picker selectedValue={selectedPredio} onValueChange={handlePredioChange} style={{ color: '#111827' }}>
+                {predios.map((predio) => (
+                  <Picker.Item key={predio} label={predio} value={predio} />
+                ))}
+              </Picker>
+            </View>
+            <View style={{ flex: 1, borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
               <Picker selectedValue={selectedSala} onValueChange={setSelectedSala} style={{ color: '#111827' }}>
-                {salas.map((sala) => (
-                  <Picker.Item key={sala} label={sala} value={sala} />
+                {salasDoPredioSelecionado.map((sala) => (
+                  <Picker.Item key={sala} label={nomeSemPredio(sala)} value={sala} />
                 ))}
               </Picker>
             </View>

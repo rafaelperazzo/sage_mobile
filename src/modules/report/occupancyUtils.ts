@@ -26,7 +26,16 @@ const DIAS_UTEIS = DIAS.filter((d) => d !== 'SÁBADO')
 
 // Capacidade: manhã 4h + tarde 4h + noite 2 blocos × 2h = 12h por dia × 5 dias úteis = 60h por semana
 export const MAX_HORAS_DIA = 12
-const MAX_HORAS_SEMANA = MAX_HORAS_DIA * DIAS_UTEIS.length
+
+// Turnos: manhã = antes das 12:00, tarde = 12:00–18:30, noite = blocos noturnos. 4h de capacidade cada.
+export type Turno = 'total' | 'manha' | 'tarde' | 'noite'
+export const TURNO_LABEL: Record<Turno, string> = { total: 'Total', manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' }
+export const MAX_HORAS_TURNO = 4
+const MEIO_DIA = timeToMinutes('12:00')
+
+export function maxHorasDia(turno: Turno): number {
+  return turno === 'total' ? MAX_HORAS_DIA : MAX_HORAS_TURNO
+}
 
 // Blocos noturnos (aulas de 50min × 2). Cada bloco com qualquer uso conta como 2h de ocupação,
 // já que a sala fica indisponível para outra turma naquele bloco.
@@ -63,21 +72,29 @@ function somarIntervalos(intervals: Intervalo[]): number {
  * Horas ocupadas de uma sala num dia:
  * - antes das 18:30: horas reais (sem dupla contagem de sobreposições);
  * - noite: cada bloco (18:30–20:10, 20:10–21:50) conta 2h se alguma alocação encostar nele.
+ * Com `turno`, conta só a parte do dia daquele turno (manhã/tarde recortam os intervalos em 12:00).
  */
-export function horasOcupadasNoDia(alocs: Pick<Alocacao, 'inicio' | 'fim'>[]): number {
-  const diurnos = alocs
-    .map((a) => ({ start: timeToMinutes(a.inicio), end: Math.min(timeToMinutes(a.fim), NIGHT_START) }))
-    .filter((i) => i.end > i.start)
-  const horasDia = somarIntervalos(diurnos)
+export function horasOcupadasNoDia(alocs: Pick<Alocacao, 'inicio' | 'fim'>[], turno: Turno = 'total'): number {
+  const horasEntre = (de: number, ate: number) =>
+    somarIntervalos(
+      alocs
+        .map((a) => ({ start: Math.max(timeToMinutes(a.inicio), de), end: Math.min(timeToMinutes(a.fim), ate) }))
+        .filter((i) => i.end > i.start)
+    )
+  const horasNoite = () =>
+    NIGHT_BLOCKS.filter((b) => alocs.some((a) => intervalosSobrepoem(a.inicio, a.fim, b.inicio, b.fim))).length *
+    HORAS_POR_BLOCO_NOTURNO
 
-  const blocosUsados = NIGHT_BLOCKS.filter((b) =>
-    alocs.some((a) => intervalosSobrepoem(a.inicio, a.fim, b.inicio, b.fim))
-  ).length
-
-  return horasDia + blocosUsados * HORAS_POR_BLOCO_NOTURNO
+  switch (turno) {
+    case 'manha': return horasEntre(0, MEIO_DIA)
+    case 'tarde': return horasEntre(MEIO_DIA, NIGHT_START)
+    case 'noite': return horasNoite()
+    case 'total': return horasEntre(0, NIGHT_START) + horasNoite()
+  }
 }
 
-export function calcularOcupacao(alocacoes: Alocacao[], salasRelatorio: SalaRelatorio[]): ReportSummary {
+export function calcularOcupacao(alocacoes: Alocacao[], salasRelatorio: SalaRelatorio[], turno: Turno = 'total'): ReportSummary {
+  const maxHorasSemana = maxHorasDia(turno) * DIAS_UTEIS.length
   // Indexa por sala/dia uma vez (Rural tem ~1000 alocações × ~60 salas)
   const porSalaDia = new Map<string, Alocacao[]>()
   for (const a of alocacoes) {
@@ -92,7 +109,7 @@ export function calcularOcupacao(alocacoes: Alocacao[], salasRelatorio: SalaRela
     let totalHoras = 0
 
     for (const dia of DIAS_UTEIS) {
-      const horasNoDia = horasOcupadasNoDia(porSalaDia.get(`${nome}|${dia}`) ?? [])
+      const horasNoDia = horasOcupadasNoDia(porSalaDia.get(`${nome}|${dia}`) ?? [], turno)
       porDia[dia] = horasNoDia
       totalHoras += horasNoDia
     }
@@ -101,7 +118,7 @@ export function calcularOcupacao(alocacoes: Alocacao[], salasRelatorio: SalaRela
       sala: nome,
       grupo,
       totalHoras,
-      percentual: Math.min(100, Math.round((totalHoras / MAX_HORAS_SEMANA) * 100)),
+      percentual: Math.min(100, Math.round((totalHoras / maxHorasSemana) * 100)),
       porDia,
     }
   })

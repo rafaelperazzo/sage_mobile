@@ -1,8 +1,15 @@
 import { useState, type ReactNode } from 'react'
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
 import { CartesianChart, Bar } from 'victory-native'
-import type { ReportSummary, RoomOccupancy } from './occupancyUtils'
-import { MAX_HORAS_DIA } from './occupancyUtils'
+import type { ReportSummary, RoomOccupancy, Turno } from './occupancyUtils'
+import { MAX_HORAS_DIA, MAX_HORAS_TURNO, TURNO_LABEL, maxHorasDia } from './occupancyUtils'
+
+const CAPACIDADE_TEXTO: Record<Turno, string> = {
+  total: `Capacidade de ${MAX_HORAS_DIA}h/dia (seg–sex). À noite, cada bloco (18:30–20:10 e 20:10–21:50) com aula conta 2h.`,
+  manha: `Manhã: aulas antes das 12:00. Capacidade de ${MAX_HORAS_TURNO}h/dia (seg–sex).`,
+  tarde: `Tarde: aulas entre 12:00 e 18:30. Capacidade de ${MAX_HORAS_TURNO}h/dia (seg–sex).`,
+  noite: `Noite: cada bloco (18:30–20:10 e 20:10–21:50) com aula conta 2h. Capacidade de ${MAX_HORAS_TURNO}h/dia (seg–sex).`,
+}
 
 // `type` (não `interface`): o CartesianChart exige Record<string, unknown>, que interfaces não satisfazem
 export type ChartItem = {
@@ -19,6 +26,7 @@ interface ReportViewProps {
   legenda?: { label: string; color: string }[]
   agruparPorGrupo?: boolean     // lista com cabeçalho por grupo (prédio, no SAGE Rural)
   header?: ReactNode            // filtros acima do resumo (ex.: prédios)
+  turno: Turno                  // turno com que `summary` foi calculado
 }
 
 function OccupancyBar({ percentual, color }: { percentual: number; color: string }) {
@@ -33,9 +41,10 @@ function OccupancyBar({ percentual, color }: { percentual: number; color: string
 }
 
 // Resumo, gráfico, detalhe por dia e lista de salas — compartilhado entre SAGE Map e SAGE Rural
-export function ReportView({ summary, totalAlocacoes, chartData, corDaSala, legenda, agruparPorGrupo, header }: ReportViewProps) {
+export function ReportView({ summary, totalAlocacoes, chartData, corDaSala, legenda, agruparPorGrupo, header, turno }: ReportViewProps) {
   const [selectedSala, setSelectedSala] = useState<string | null>(null)
   const { salas, totalGeralHoras, mediaOcupacao } = summary
+  const maxDia = maxHorasDia(turno)
   const selected = selectedSala ? salas.find((s) => s.sala === selectedSala) : null
 
   return (
@@ -47,7 +56,7 @@ export function ReportView({ summary, totalAlocacoes, chartData, corDaSala, lege
         {[
           { label: 'Alocações', value: totalAlocacoes },
           { label: 'Horas Totais', value: `${totalGeralHoras.toFixed(0)}h` },
-          { label: 'Média Ocupação', value: `${mediaOcupacao}%` },
+          { label: turno === 'total' ? 'Média Ocupação' : `Média ${TURNO_LABEL[turno]}`, value: `${mediaOcupacao}%` },
         ].map((stat) => (
           <View key={stat.label} style={{ flex: 1, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', borderRadius: 12, padding: 12, alignItems: 'center' }}>
             <Text style={{ fontSize: 20, fontWeight: '900', color: '#059669' }}>{stat.value}</Text>
@@ -56,7 +65,7 @@ export function ReportView({ summary, totalAlocacoes, chartData, corDaSala, lege
         ))}
       </View>
       <Text style={{ fontSize: 10, color: '#9CA3AF', paddingHorizontal: 16, paddingTop: 6, paddingBottom: 8 }}>
-        Capacidade de {MAX_HORAS_DIA}h/dia (seg–sex). À noite, cada bloco (18:30–20:10 e 20:10–21:50) com aula conta 2h.
+        {CAPACIDADE_TEXTO[turno]}
       </Text>
 
       {/* Legenda */}
@@ -117,7 +126,7 @@ export function ReportView({ summary, totalAlocacoes, chartData, corDaSala, lege
                 <Text style={{ fontSize: 11, color: '#6B7280' }}>{horas.toFixed(1)}h</Text>
               </View>
               <View style={{ height: 6, backgroundColor: '#E5E7EB', borderRadius: 3, overflow: 'hidden' }}>
-                <View style={{ width: `${Math.min((horas / MAX_HORAS_DIA) * 100, 100)}%` as `${number}%`, height: 6, backgroundColor: corDaSala(selected), borderRadius: 3 }} />
+                <View style={{ width: `${Math.min((horas / maxDia) * 100, 100)}%` as `${number}%`, height: 6, backgroundColor: corDaSala(selected), borderRadius: 3 }} />
               </View>
             </View>
           ))}

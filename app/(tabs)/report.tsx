@@ -8,8 +8,8 @@ import { useSalasExternas } from '../../src/hooks/useSalasExternas'
 import { usePeriodoExterna } from '../../src/hooks/usePeriodoExterna'
 import { usePeriodo } from '../../src/contexts/PeriodoContext'
 import { SALAS } from '../../src/constants/salas'
-import { predioDaSala, ordenarSalas } from '../../src/lib/predio'
-import { calcularOcupacao, mediaPorGrupo } from '../../src/modules/report/occupancyUtils'
+import { predioDaSala, ordenarSalas, SEM_PREDIO } from '../../src/lib/predio'
+import { calcularOcupacao, mediaPorGrupo, TURNO_LABEL, type Turno } from '../../src/modules/report/occupancyUtils'
 import { ReportView } from '../../src/modules/report/ReportView'
 
 const TIPO_COLOR: Record<string, string> = {
@@ -27,7 +27,6 @@ const TIPO_LABEL: Record<string, string> = {
 const RURAL_COLOR = '#0E7490'
 const RURAL_BG = '#ECFEFF'
 const TODOS = 'Todos'
-const SEM_PREDIO = 'Outras'
 
 type Modulo = 'map' | 'rural'
 
@@ -72,13 +71,13 @@ function Carregando() {
 }
 
 // ── SAGE Map: salas fixas do DC, cor por tipo de sala ─────────────
-function ReportMap() {
+function ReportMap({ turno }: { turno: Turno }) {
   const { alocacoes, loading } = useAlocacoes()
   const { periodo, setPeriodo, periodos } = usePeriodo()
 
   if (loading) return <Carregando />
 
-  const summary = calcularOcupacao(alocacoes, SALAS.map((s) => ({ nome: s.nome, grupo: s.tipo })))
+  const summary = calcularOcupacao(alocacoes, SALAS.map((s) => ({ nome: s.nome, grupo: s.tipo })), turno)
   const chartData = summary.salas.map((s) => ({
     label: s.sala.replace('LAB CEAGRI I - ', 'CEA-').replace('SALA ', 'S').replace('LAB ', 'L'),
     percentual: s.percentual,
@@ -94,13 +93,14 @@ function ReportMap() {
         chartData={chartData}
         corDaSala={(s) => TIPO_COLOR[s.grupo] ?? '#6B7280'}
         legenda={Object.entries(TIPO_COLOR).map(([tipo, color]) => ({ label: TIPO_LABEL[tipo]!, color }))}
+        turno={turno}
       />
     </>
   )
 }
 
 // ── SAGE Rural: salas da tabela `externas`, filtradas por prédio ──
-function ReportRural() {
+function ReportRural({ turno }: { turno: Turno }) {
   const { periodo, setPeriodo, periodos } = usePeriodoExterna()
   const { salas, loading: loadingSalas } = useSalasExternas(periodo)
   const { alocacoes, loading } = useAlocacoesExternas(periodo)
@@ -115,7 +115,7 @@ function ReportRural() {
   const visiveis = predio === TODOS ? salasRelatorio : salasRelatorio.filter((s) => s.grupo === predio)
   const nomesVisiveis = new Set(visiveis.map((s) => s.nome))
 
-  const summary = calcularOcupacao(alocacoes, visiveis)
+  const summary = calcularOcupacao(alocacoes, visiveis, turno)
   // "Todos": uma barra por prédio (média); prédio escolhido: uma barra por sala
   const chartData = predio === TODOS
     ? mediaPorGrupo(summary.salas).map((g) => ({ label: g.grupo, percentual: g.percentual, color: RURAL_COLOR }))
@@ -144,6 +144,7 @@ function ReportRural() {
         corDaSala={() => RURAL_COLOR}
         agruparPorGrupo={predio === TODOS}
         header={filtroPredios}
+        turno={turno}
       />
     </>
   )
@@ -151,6 +152,8 @@ function ReportRural() {
 
 export default function ReportScreen() {
   const [modulo, setModulo] = useState<Modulo>('map')
+  const [turno, setTurno] = useState<Turno>('total')
+  const [cor, bg] = modulo === 'map' ? ['#059669', '#ECFDF5'] : [RURAL_COLOR, RURAL_BG]
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['left', 'right', 'bottom']}>
@@ -158,8 +161,14 @@ export default function ReportScreen() {
         <Pilula label="SAGE Map" ativo={modulo === 'map'} cor="#059669" bg="#ECFDF5" onPress={() => setModulo('map')} />
         <Pilula label="SAGE Rural" ativo={modulo === 'rural'} cor={RURAL_COLOR} bg={RURAL_BG} onPress={() => setModulo('rural')} />
       </View>
+      {/* Turno: vale para os dois módulos */}
+      <View style={{ flexDirection: 'row', gap: 6, paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}>
+        {(Object.keys(TURNO_LABEL) as Turno[]).map((t) => (
+          <Pilula key={t} label={TURNO_LABEL[t]} ativo={turno === t} cor={cor} bg={bg} onPress={() => setTurno(t)} />
+        ))}
+      </View>
       {/* Cada módulo é um componente próprio: só os hooks do módulo ativo rodam */}
-      {modulo === 'map' ? <ReportMap /> : <ReportRural />}
+      {modulo === 'map' ? <ReportMap turno={turno} /> : <ReportRural turno={turno} />}
     </SafeAreaView>
   )
 }
