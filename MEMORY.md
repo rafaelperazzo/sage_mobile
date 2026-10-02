@@ -160,3 +160,12 @@ Six features in one session. All uncommitted at the end of the day, as a single 
 **Expect higher 2026.1 numbers:** 2026.1 night classes use full hours (e.g. 19:00–21:00). Under the any-touch rule these touch both blocks and count 4h. This is intended.
 
 **Pre-existing, left as is:** the Report chart passes no `font` to `CartesianChart`, so victory-native draws no axis labels, only bars. The list below the chart carries the names.
+
+## 2026-10-02 — Google Play In-App Updates
+
+- **What:** `src/hooks/useStoreUpdates.ts`, using `expo-in-app-updates` 0.12.0 (Play Core `app-update` 2.1.0). It is called next to `useAppUpdates` in `app/_layout.tsx`.
+- **Flow:** **immediate** (full-screen Play UI at launch). The flexible flow was rejected because the lib's native code calls `completeUpdate()` as soon as the download finishes, which would restart the app mid-use. If the user declines, the check repeats on the next launch.
+- **Incident:** `Cannot find native module 'ExpoInAppUpdates'` in a dev client/Expo Go without the module. A top-level `import` runs `requireNativeModule` at load time, before any `__DEV__` guard. Fix: the hook first checks `requireOptionalNativeModule('ExpoInAppUpdates')` from `expo`, then loads the lib with `await import(...)`. This also keeps OTA patches safe on older binaries.
+- **Rollout:** checking the Play Store only works from the first **minor** release that contains the module (app.json was at 33.0.0, so 33.1.0). Users on 33.0.x must update the old way once. It can only be tested on a Play-installed build (internal testing track / internal app sharing) with a higher `versionCode` published.
+- **Doc fix:** CLAUDE.md wrongly said `deploy.sh` bumps `runtimeVersion` on every bump. It only does so on major/minor (lines 103–114); patch leaves `app.json` untouched, so OTA keeps reaching the current binaries.
+- **Verified:** tsc, autolinking, and an Android dev bundle (HTTP 200). The update flow itself was not tested on a device.
