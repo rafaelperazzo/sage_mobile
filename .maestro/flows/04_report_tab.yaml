@@ -5,12 +5,23 @@ name: "04 - Report Tab"
     clearState: true
 - waitForAnimationToEnd:
     timeout: 16000
+# Emulador do CI às vezes demora a entregar a home após o launch: espera a aba existir antes do toque
+- extendedWaitUntil:
+    visible:
+      id: "tab-report"
+    timeout: 60000
 - tapOn:
-    text: "Report"
-# Report pode demorar para renderizar gráficos (Supabase + Skia)
-- waitForAnimationToEnd:
+    id: "tab-report"
+# Report pode demorar para renderizar gráficos (Supabase + Skia): espera ativa pelo header
+# em vez de depender só do fim das animações
+- extendedWaitUntil:
+    visible:
+      text: "SAGE Report"
     timeout: 30000
-- assertVisible:
-    text: "SAGE Report"
+# Filtro de turno visível após o carregamento
+- extendedWaitUntil:
+    visible:
+      text: "Noite"
+    timeout: 30000
 - takeScreenshot: screenshots/04_report_tab
 - stopApp
