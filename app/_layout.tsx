@@ -7,9 +7,11 @@ import { AuthProvider } from '../src/contexts/AuthContext'
 import { PeriodoProvider } from '../src/contexts/PeriodoContext'
 import { PeriodoExternaProvider } from '../src/contexts/PeriodoExternaContext'
 import { useAppUpdates } from '../src/hooks/useAppUpdates'
+import { useStoreUpdates } from '../src/hooks/useStoreUpdates'
 
 export default function RootLayout() {
   useAppUpdates()
+  useStoreUpdates()
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

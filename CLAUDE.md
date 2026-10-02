@@ -94,6 +94,7 @@ Custom hooks in [src/hooks/](src/hooks/) wrap Supabase calls with local state an
   `<ComModulo modulo render={(ctx) => ...}>` picks one without running the other module's queries.
 - `useInfraSala` — fetch/update a single `infra_salas` row by `sala` name (read-only for all, write requires an authenticated session per RLS)
 - `useAppUpdates` — OTA update polling via expo-updates
+- `useStoreUpdates` — Google Play In-App Updates via `expo-in-app-updates` (Android release builds only). Uses the **immediate** flow at launch: the lib auto-calls `completeUpdate()` when a flexible download finishes, which would restart the app mid-use. Only testable on a build installed from the Play Store (internal testing track / internal app sharing).
 - `useAuth` — login/logout wrapping AuthContext
 
 ### State Management
@@ -129,6 +130,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 - Android `compileSdkVersion`/`targetSdkVersion` are pinned to 36 (Android 16) via the `expo-build-properties` plugin in `app.json`, per Play Store's target API level requirement. Bump both together on future SDK requirement changes.
 - Android `versionCode` and iOS `buildNumber` auto-increment on EAS builds.
 - Legacy peer deps mode is required: `NPM_CONFIG_LEGACY_PEER_DEPS=true`.
-- Adding a native module means the release must be a **minor** bump (native build via `build-and-submit.yml`), never a patch/OTA. `expo-print`, `expo-sharing` and `expo-file-system` were added for PDF export. `deploy.sh` sets `runtimeVersion` to the new version on every bump, so an OTA published as a patch reaches no installed binary.
+- Adding a native module means the release must be a **minor** bump (native build via `build-and-submit.yml`), never a patch/OTA. `expo-print`, `expo-sharing` and `expo-file-system` were added for PDF export; `expo-in-app-updates` for Play In-App Updates. `deploy.sh` sets `runtimeVersion` to the new version on every bump, so an OTA published as a patch reaches no installed binary.
 - Native Android fixes (deprecated edge-to-edge style attributes pulled in by libraries) are applied by the config plugin [plugins/withAndroidFixes.js](plugins/withAndroidFixes.js), registered in `app.json`'s `plugins` array — it runs on every `expo prebuild`. There is no separate `prebuild.sh`/`fix.sh` script for this anymore.
 - See [COMMANDS.md](COMMANDS.md) for full deployment workflow documentation.
